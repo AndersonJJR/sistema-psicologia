@@ -16,6 +16,7 @@ public record PsicologoRequestDTO(
         @Email(message = "E-mail inválido")
         String email,
         @NotBlank(message = "O telefone é obrigatório")
-        String telefone
+        String telefone,
+        String abordagemClinica
 ) {
 }

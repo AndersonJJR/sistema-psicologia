@@ -13,6 +13,8 @@ public record PsicologoResponseDTO(
         String numeroEpsi,
         String email,
         String telefone,
+        String abordagemClinica,
+        Instant ultimaRenovacaoEpsi,
         boolean ativo,
         Instant deletedAt
 ) {
@@ -25,6 +27,8 @@ public record PsicologoResponseDTO(
                 entity.getNumeroEpsi(),
                 entity.getEmail(),
                 entity.getTelefone(),
+                entity.getAbordagemClinica() != null ? entity.getAbordagemClinica() : "tcc",
+                entity.getUltimaRenovacaoEpsi(),
                 entity.isAtivo(),
                 entity.getDeletedAt()
         );

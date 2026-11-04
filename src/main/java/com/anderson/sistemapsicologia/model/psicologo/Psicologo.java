@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -57,4 +58,10 @@ public class Psicologo extends EntidadeAuditavel {
 
     @Column(name = "telefone", nullable = false, length = 25)
     private String telefone;
+
+    @Column(name = "abordagem_clinica", length = 60)
+    private String abordagemClinica;
+
+    @Column(name = "ultima_renovacao_epsi")
+    private Instant ultimaRenovacaoEpsi;
 }
