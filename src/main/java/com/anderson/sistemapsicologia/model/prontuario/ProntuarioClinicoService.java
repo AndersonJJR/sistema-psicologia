@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -65,7 +66,7 @@ public class ProntuarioClinicoService {
     }
 
     @Transactional(readOnly = true)
-    public ProntuarioClinicoResponseDTO buscarPorId(Long id, String enderecoIp) {
+    public ProntuarioClinicoResponseDTO buscarPorId(UUID id, String enderecoIp) {
         ProntuarioClinico prontuario = prontuarioRepository.findByIdProntuarioAndAtivoTrue(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Prontuário clínico não encontrado: " + id));
         auditoriaService.registrarAcao(
@@ -78,7 +79,7 @@ public class ProntuarioClinicoService {
     }
 
     @Transactional(readOnly = true)
-    public List<ProntuarioClinicoResponseDTO> listarPorPaciente(Long idPaciente, String enderecoIp) {
+    public List<ProntuarioClinicoResponseDTO> listarPorPaciente(UUID idPaciente, String enderecoIp) {
         auditoriaService.registrarAcao(
                 autenticacaoService.obterLoginOperadorAtual(),
                 enderecoIp,
@@ -92,7 +93,7 @@ public class ProntuarioClinicoService {
     }
 
     @Transactional
-    public void inativar(Long id, String enderecoIp) {
+    public void inativar(UUID id, String enderecoIp) {
         ProntuarioClinico prontuario = prontuarioRepository.findByIdProntuarioAndAtivoTrue(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Prontuário clínico não encontrado: " + id));
         prontuario.realizarSoftDelete();

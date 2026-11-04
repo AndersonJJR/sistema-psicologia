@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Entidade PRONTUARIOS_CLINICOS conforme Resolução CFP nº 001/2009.
@@ -35,9 +36,9 @@ import java.time.Instant;
 public class ProntuarioClinico extends EntidadeAuditavel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_prontuario")
-    private Long idProntuario;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_prontuario", updatable = false, nullable = false)
+    private UUID idProntuario;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_agendamento", nullable = false, unique = true)

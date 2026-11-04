@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Controller REST para PRONTUARIOS_CLINICOS (Resolução CFP nº 001/2009).
@@ -48,7 +49,7 @@ public class ProntuarioClinicoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProntuarioClinicoResponseDTO> buscarPorId(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
@@ -57,7 +58,7 @@ public class ProntuarioClinicoController {
 
     @GetMapping("/paciente/{idPaciente}")
     public ResponseEntity<List<ProntuarioClinicoResponseDTO>> listarPorPaciente(
-            @PathVariable Long idPaciente,
+            @PathVariable UUID idPaciente,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
@@ -66,7 +67,7 @@ public class ProntuarioClinicoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);

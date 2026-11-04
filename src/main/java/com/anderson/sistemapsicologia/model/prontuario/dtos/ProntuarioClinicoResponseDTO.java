@@ -3,13 +3,14 @@ package com.anderson.sistemapsicologia.model.prontuario.dtos;
 import com.anderson.sistemapsicologia.model.prontuario.ProntuarioClinico;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record ProntuarioClinicoResponseDTO(
-        Long idProntuario,
-        Long idAgendamento,
-        Long idPaciente,
+        UUID idProntuario,
+        UUID idAgendamento,
+        UUID idPaciente,
         String nomePaciente,
-        Long idPsicologo,
+        UUID idPsicologo,
         String nomePsicologo,
         String procedimentosTecnicos,
         String evolucaoObservavel,
