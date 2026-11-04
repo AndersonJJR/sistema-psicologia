@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Serviço para manipulação de REGISTROS_DOCUMENTAIS.
@@ -33,7 +34,7 @@ public class RegistroDocumentalService {
 
     @Transactional
     public RegistroDocumentalResponseDTO criar(RegistroDocumentalRequestDTO dto, String enderecoIp) {
-        Long idPsicologoJwt = exigirPsicologoTitularAutenticado();
+        UUID idPsicologoJwt = exigirPsicologoTitularAutenticado();
 
         if (registroDocumentalRepository.existsByAgendamentoIdAgendamento(dto.idAgendamento())) {
             throw new RegraNegocioException("Já existe registro documental para o agendamento informado.");
@@ -61,7 +62,7 @@ public class RegistroDocumentalService {
 
     @Transactional(readOnly = true)
     public List<RegistroDocumentalResponseDTO> listarMeusRegistros(String enderecoIp) {
-        Long idPsicologoJwt = exigirPsicologoTitularAutenticado();
+        UUID idPsicologoJwt = exigirPsicologoTitularAutenticado();
         auditoriaService.registrarAcao(
                 autenticacaoService.obterLoginOperadorAtual(),
                 enderecoIp,
@@ -76,8 +77,8 @@ public class RegistroDocumentalService {
     }
 
     @Transactional(readOnly = true)
-    public RegistroDocumentalResponseDTO buscarPorId(Long idRegistro, String enderecoIp) {
-        Long idPsicologoJwt = exigirPsicologoTitularAutenticado();
+    public RegistroDocumentalResponseDTO buscarPorId(UUID idRegistro, String enderecoIp) {
+        UUID idPsicologoJwt = exigirPsicologoTitularAutenticado();
         RegistroDocumental registro = registroDocumentalRepository.findByIdRegistroDocumentalAndAtivoTrue(idRegistro)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Registro documental não encontrado: " + idRegistro));
 
@@ -98,8 +99,8 @@ public class RegistroDocumentalService {
     }
 
     @Transactional
-    public void inativar(Long idRegistro, String enderecoIp) {
-        Long idPsicologoJwt = exigirPsicologoTitularAutenticado();
+    public void inativar(UUID idRegistro, String enderecoIp) {
+        UUID idPsicologoJwt = exigirPsicologoTitularAutenticado();
         RegistroDocumental registro = registroDocumentalRepository.findByIdRegistroDocumentalAndAtivoTrue(idRegistro)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Registro documental não encontrado: " + idRegistro));
 
@@ -120,14 +121,14 @@ public class RegistroDocumentalService {
         );
     }
 
-    private Long exigirPsicologoTitularAutenticado() {
+    private UUID exigirPsicologoTitularAutenticado() {
         return autenticacaoService.obterIdPsicologoAutenticado()
                 .orElseThrow(() -> new AcessoNegadoClinicoException(
                         "Apenas o psicólogo titular autenticado via JWT pode acessar REGISTROS_DOCUMENTAIS."
                 ));
     }
 
-    private void validarTitularidade(Long idPsicologoDono, Long idPsicologoRequisitante, String ip, String recurso) {
+    private void validarTitularidade(UUID idPsicologoDono, UUID idPsicologoRequisitante, String ip, String recurso) {
         if (!idPsicologoDono.equals(idPsicologoRequisitante)) {
             auditoriaService.registrarAcao(
                     autenticacaoService.obterLoginOperadorAtual(),

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Controller REST para REGISTROS_DOCUMENTAIS (Resolução CFP nº 001/2009).
@@ -48,7 +49,7 @@ public class RegistroDocumentalController {
 
     @GetMapping("/{id}")
     public ResponseEntity<RegistroDocumentalResponseDTO> buscarPorId(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
@@ -57,7 +58,7 @@ public class RegistroDocumentalController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);

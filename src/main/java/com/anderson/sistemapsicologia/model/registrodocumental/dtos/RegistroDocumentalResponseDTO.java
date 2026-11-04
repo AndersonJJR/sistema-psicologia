@@ -3,12 +3,13 @@ package com.anderson.sistemapsicologia.model.registrodocumental.dtos;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumental;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record RegistroDocumentalResponseDTO(
-        Long idRegistroDocumental,
-        Long idAgendamento,
-        Long idPsicologoTitular,
-        Long idPaciente,
+        UUID idRegistroDocumental,
+        UUID idAgendamento,
+        UUID idPsicologoTitular,
+        UUID idPaciente,
         String hipotesesProvisorias,
         String notasSupervisao,
         Instant dataRegistro,

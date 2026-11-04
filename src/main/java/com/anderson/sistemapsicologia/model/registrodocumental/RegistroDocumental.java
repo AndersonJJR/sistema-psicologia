@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Entidade REGISTROS_DOCUMENTAIS conforme Resolução CFP nº 001/2009.
@@ -37,9 +38,9 @@ import java.time.Instant;
 public class RegistroDocumental extends EntidadeAuditavel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_registro_documental")
-    private Long idRegistroDocumental;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_registro_documental", updatable = false, nullable = false)
+    private UUID idRegistroDocumental;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_agendamento", nullable = false, unique = true)
