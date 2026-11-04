@@ -5,12 +5,13 @@ import com.anderson.sistemapsicologia.model.agendamento.StatusAgendamento;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record AgendamentoRequestDTO(
         @NotNull(message = "O psicólogo é obrigatório")
-        Long idPsicologo,
+        UUID idPsicologo,
         @NotNull(message = "O paciente é obrigatório")
-        Long idPaciente,
+        UUID idPaciente,
         @NotNull(message = "A data e hora da sessão são obrigatórias")
         LocalDateTime dataHoraSessao,
         @NotNull(message = "A modalidade de atendimento é obrigatória")

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -77,13 +78,13 @@ public class AgendamentoService {
     }
 
     @Transactional(readOnly = true)
-    public Agendamento buscarEntidadeAtiva(Long id) {
+    public Agendamento buscarEntidadeAtiva(UUID id) {
         return agendamentoRepository.findByIdAgendamentoAndAtivoTrue(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Agendamento não encontrado ou inativo: " + id));
     }
 
     @Transactional(readOnly = true)
-    public AgendamentoResponseDTO buscarPorId(Long id, String enderecoIp) {
+    public AgendamentoResponseDTO buscarPorId(UUID id, String enderecoIp) {
         Agendamento agendamento = buscarEntidadeAtiva(id);
         auditoriaService.registrarAcao(
                 autenticacaoService.obterLoginOperadorAtual(),
@@ -95,7 +96,7 @@ public class AgendamentoService {
     }
 
     @Transactional
-    public void inativar(Long id, String enderecoIp) {
+    public void inativar(UUID id, String enderecoIp) {
         Agendamento agendamento = buscarEntidadeAtiva(id);
         agendamento.realizarSoftDelete();
         agendamento.setStatus(StatusAgendamento.CANCELADO);

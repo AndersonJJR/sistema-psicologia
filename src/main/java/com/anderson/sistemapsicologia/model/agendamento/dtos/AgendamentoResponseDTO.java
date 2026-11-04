@@ -6,13 +6,14 @@ import com.anderson.sistemapsicologia.model.agendamento.StatusAgendamento;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record AgendamentoResponseDTO(
-        Long idAgendamento,
-        Long idPsicologo,
+        UUID idAgendamento,
+        UUID idPsicologo,
         String nomePsicologo,
         String numeroEpsiPsicologo,
-        Long idPaciente,
+        UUID idPaciente,
         String nomePaciente,
         String contatoEmergenciaNome,
         String contatoEmergenciaTelefone,

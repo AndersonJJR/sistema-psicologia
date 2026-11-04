@@ -21,6 +21,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Entidade AGENDAMENTOS com suporte a Telessaúde (endereco_local_sessao confirmado na sessão)
@@ -36,9 +37,9 @@ import java.time.LocalDateTime;
 public class Agendamento extends EntidadeAuditavel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_agendamento")
-    private Long idAgendamento;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_agendamento", updatable = false, nullable = false)
+    private UUID idAgendamento;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_psicologo", nullable = false)

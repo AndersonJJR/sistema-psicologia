@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/agendamentos")
@@ -41,7 +42,7 @@ public class AgendamentoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AgendamentoResponseDTO> buscarPorId(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
@@ -50,7 +51,7 @@ public class AgendamentoController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
