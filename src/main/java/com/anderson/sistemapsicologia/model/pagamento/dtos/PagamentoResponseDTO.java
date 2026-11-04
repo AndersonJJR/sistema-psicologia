@@ -5,13 +5,14 @@ import com.anderson.sistemapsicologia.model.pagamento.StatusSplit;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 public record PagamentoResponseDTO(
-        Long idPagamento,
-        Long idAgendamento,
-        Long idPaciente,
+        UUID idPagamento,
+        UUID idAgendamento,
+        UUID idPaciente,
         String nomePaciente,
-        Long idPsicologo,
+        UUID idPsicologo,
         String nomePsicologo,
         BigDecimal valorTotal,
         BigDecimal taxaClinicaInfraestrutura,

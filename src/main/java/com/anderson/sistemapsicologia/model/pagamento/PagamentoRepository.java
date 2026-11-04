@@ -5,15 +5,16 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
+public interface PagamentoRepository extends JpaRepository<Pagamento, UUID> {
 
     List<Pagamento> findAllByAtivoTrueOrderByDataPagamentoDesc();
 
-    List<Pagamento> findAllByAgendamentoPacienteIdPacienteAndAtivoTrueOrderByDataPagamentoDesc(Long idPaciente);
+    List<Pagamento> findAllByAgendamentoPacienteIdPacienteAndAtivoTrueOrderByDataPagamentoDesc(UUID idPaciente);
 
-    Optional<Pagamento> findByIdPagamentoAndAtivoTrue(Long idPagamento);
+    Optional<Pagamento> findByIdPagamentoAndAtivoTrue(UUID idPagamento);
 
-    boolean existsByAgendamentoIdAgendamento(Long idAgendamento);
+    boolean existsByAgendamentoIdAgendamento(UUID idAgendamento);
 }

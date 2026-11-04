@@ -22,6 +22,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Entidade PAGAMENTOS estruturada com Split de Pagamentos para evitar bitributação:
@@ -38,9 +39,9 @@ import java.time.Instant;
 public class Pagamento extends EntidadeAuditavel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_pagamento")
-    private Long idPagamento;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_pagamento", updatable = false, nullable = false)
+    private UUID idPagamento;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_agendamento", nullable = false, unique = true)

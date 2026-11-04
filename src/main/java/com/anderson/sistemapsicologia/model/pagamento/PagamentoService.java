@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -59,7 +60,7 @@ public class PagamentoService {
     }
 
     @Transactional
-    public PagamentoResponseDTO liquidarSplit(Long idPagamento, String enderecoIp) {
+    public PagamentoResponseDTO liquidarSplit(UUID idPagamento, String enderecoIp) {
         Pagamento pagamento = pagamentoRepository.findByIdPagamentoAndAtivoTrue(idPagamento)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Pagamento não encontrado: " + idPagamento));
 

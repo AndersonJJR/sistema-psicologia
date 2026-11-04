@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/pagamentos")
@@ -36,7 +37,7 @@ public class PagamentoController {
 
     @PatchMapping("/{id}/liquidar")
     public ResponseEntity<PagamentoResponseDTO> liquidarSplit(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
