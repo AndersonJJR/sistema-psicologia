@@ -3,9 +3,10 @@ package com.anderson.sistemapsicologia.model.psicologo.dtos;
 import com.anderson.sistemapsicologia.model.psicologo.Psicologo;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record PsicologoResponseDTO(
-        Long idPsicologo,
+        UUID idPsicologo,
         String nome,
         String cpf,
         String crp,

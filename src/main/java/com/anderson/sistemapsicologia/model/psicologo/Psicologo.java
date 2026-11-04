@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 /**
  * Entidade PSICOLOGOS com constraints UNIQUE em cpf, crp e numero_epsi (Telessaúde CFP).
  */
@@ -34,9 +36,9 @@ import lombok.Setter;
 public class Psicologo extends EntidadeAuditavel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_psicologo")
-    private Long idPsicologo;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_psicologo", updatable = false, nullable = false)
+    private UUID idPsicologo;
 
     @Column(name = "nome", nullable = false, length = 150)
     private String nome;

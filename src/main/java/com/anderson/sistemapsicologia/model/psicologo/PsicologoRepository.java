@@ -5,13 +5,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface PsicologoRepository extends JpaRepository<Psicologo, Long> {
+public interface PsicologoRepository extends JpaRepository<Psicologo, UUID> {
 
     List<Psicologo> findAllByAtivoTrue();
 
-    Optional<Psicologo> findByIdPsicologoAndAtivoTrue(Long idPsicologo);
+    Optional<Psicologo> findByIdPsicologoAndAtivoTrue(UUID idPsicologo);
 
     boolean existsByCpf(String cpf);
 

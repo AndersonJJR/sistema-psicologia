@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -61,13 +62,13 @@ public class PsicologoService {
     }
 
     @Transactional(readOnly = true)
-    public Psicologo buscarEntidadeAtiva(Long id) {
+    public Psicologo buscarEntidadeAtiva(UUID id) {
         return psicologoRepository.findByIdPsicologoAndAtivoTrue(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Psicólogo não encontrado ou inativo: " + id));
     }
 
     @Transactional(readOnly = true)
-    public PsicologoResponseDTO buscarPorId(Long id, String enderecoIp) {
+    public PsicologoResponseDTO buscarPorId(UUID id, String enderecoIp) {
         Psicologo psicologo = buscarEntidadeAtiva(id);
         auditoriaService.registrarAcao(
                 autenticacaoService.obterLoginOperadorAtual(),
@@ -79,7 +80,7 @@ public class PsicologoService {
     }
 
     @Transactional
-    public void inativar(Long id, String enderecoIp) {
+    public void inativar(UUID id, String enderecoIp) {
         Psicologo psicologo = buscarEntidadeAtiva(id);
         psicologo.realizarSoftDelete();
         psicologoRepository.save(psicologo);
