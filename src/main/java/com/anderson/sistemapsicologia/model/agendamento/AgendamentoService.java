@@ -33,6 +33,15 @@ public class AgendamentoService {
         Psicologo psicologo = psicologoService.buscarEntidadeAtiva(dto.idPsicologo());
         Paciente paciente = pacienteService.buscarEntidadeAtiva(dto.idPaciente());
 
+        if (agendamentoRepository.existsByPsicologoIdPsicologoAndDataHoraSessaoAndAtivoTrue(
+                psicologo.getIdPsicologo(),
+                dto.dataHoraSessao()
+        )) {
+            throw new RegraNegocioException(
+                    "O psicólogo já possui outro agendamento ativo neste mesmo horário."
+            );
+        }
+
         String localSessao = dto.enderecoLocalSessao() != null && !dto.enderecoLocalSessao().isBlank()
                 ? dto.enderecoLocalSessao()
                 : paciente.getEnderecoLocalSessao();
@@ -91,6 +100,42 @@ public class AgendamentoService {
                 enderecoIp,
                 AcaoAuditoria.LEITURA,
                 "AGENDAMENTO:" + id
+        );
+        return AgendamentoResponseDTO.fromEntity(agendamento);
+    }
+
+    @Transactional
+    public AgendamentoResponseDTO atualizarStatus(
+            UUID id,
+            StatusAgendamento novoStatus,
+            String enderecoIp
+    ) {
+        Agendamento agendamento = buscarEntidadeAtiva(id);
+        agendamento.setStatus(novoStatus);
+        Agendamento salvo = agendamentoRepository.save(agendamento);
+        auditoriaService.registrarAcao(
+                autenticacaoService.obterLoginOperadorAtual(),
+                enderecoIp,
+                AcaoAuditoria.ALTERACAO,
+                "AGENDAMENTO:STATUS_" + novoStatus.name() + ":" + id
+        );
+        return AgendamentoResponseDTO.fromEntity(salvo);
+    }
+
+    @Transactional
+    public AgendamentoResponseDTO acionarProtocoloEmergencia(UUID id, String enderecoIp) {
+        Agendamento agendamento = buscarEntidadeAtiva(id);
+        Paciente paciente = agendamento.getPaciente();
+        if (paciente.getContatoEmergenciaTelefone() == null || paciente.getContatoEmergenciaTelefone().isBlank()) {
+            throw new RegraNegocioException(
+                    "O paciente não possui telefone de contato de emergência cadastrado."
+            );
+        }
+        auditoriaService.registrarAcao(
+                autenticacaoService.obterLoginOperadorAtual(),
+                enderecoIp,
+                AcaoAuditoria.ALTERACAO,
+                "AGENDAMENTO:PROTOCOLO_EMERGENCIA_ACIONADO:" + id
         );
         return AgendamentoResponseDTO.fromEntity(agendamento);
     }

@@ -1,6 +1,7 @@
 package com.anderson.sistemapsicologia.controller;
 
 import com.anderson.sistemapsicologia.model.agendamento.AgendamentoService;
+import com.anderson.sistemapsicologia.model.agendamento.StatusAgendamento;
 import com.anderson.sistemapsicologia.model.agendamento.dtos.AgendamentoRequestDTO;
 import com.anderson.sistemapsicologia.model.agendamento.dtos.AgendamentoResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,10 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -47,6 +50,25 @@ public class AgendamentoController {
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
         return ResponseEntity.ok(agendamentoService.buscarPorId(id, ip));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<AgendamentoResponseDTO> atualizarStatus(
+            @PathVariable UUID id,
+            @RequestParam StatusAgendamento status,
+            HttpServletRequest request
+    ) {
+        String ip = RequisicaoHttpUtils.extrairIpCliente(request);
+        return ResponseEntity.ok(agendamentoService.atualizarStatus(id, status, ip));
+    }
+
+    @PostMapping("/{id}/alerta-emergencia")
+    public ResponseEntity<AgendamentoResponseDTO> acionarAlertaEmergencia(
+            @PathVariable UUID id,
+            HttpServletRequest request
+    ) {
+        String ip = RequisicaoHttpUtils.extrairIpCliente(request);
+        return ResponseEntity.ok(agendamentoService.acionarProtocoloEmergencia(id, ip));
     }
 
     @DeleteMapping("/{id}")

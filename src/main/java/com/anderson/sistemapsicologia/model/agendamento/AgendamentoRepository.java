@@ -3,6 +3,7 @@ package com.anderson.sistemapsicologia.model.agendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,6 +16,11 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
     List<Agendamento> findAllByPacienteIdPacienteOrderByDataHoraSessaoDesc(UUID idPaciente);
 
     Optional<Agendamento> findByIdAgendamentoAndAtivoTrue(UUID idAgendamento);
+
+    boolean existsByPsicologoIdPsicologoAndDataHoraSessaoAndAtivoTrue(
+            UUID idPsicologo,
+            LocalDateTime dataHoraSessao
+    );
 
     @Override
     default void deleteById(UUID id) {
