@@ -4,9 +4,10 @@ import com.anderson.sistemapsicologia.model.paciente.Paciente;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record PacienteResponseDTO(
-        Long idPaciente,
+        UUID idPaciente,
         String nome,
         String cpf,
         LocalDate dataNascimento,

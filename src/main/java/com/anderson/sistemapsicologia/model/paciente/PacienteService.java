@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -57,19 +58,19 @@ public class PacienteService {
     }
 
     @Transactional(readOnly = true)
-    public Paciente buscarEntidadePorId(Long id) {
+    public Paciente buscarEntidadePorId(UUID id) {
         return pacienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Paciente não encontrado: " + id));
     }
 
     @Transactional(readOnly = true)
-    public Paciente buscarEntidadeAtiva(Long id) {
+    public Paciente buscarEntidadeAtiva(UUID id) {
         return pacienteRepository.findByIdPacienteAndAtivoTrue(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Paciente não encontrado ou inativo: " + id));
     }
 
     @Transactional(readOnly = true)
-    public PacienteResponseDTO buscarPorId(Long id, String enderecoIp) {
+    public PacienteResponseDTO buscarPorId(UUID id, String enderecoIp) {
         Paciente paciente = buscarEntidadeAtiva(id);
         auditoriaService.registrarAcao(
                 autenticacaoService.obterLoginOperadorAtual(),
@@ -81,7 +82,7 @@ public class PacienteService {
     }
 
     @Transactional
-    public PacienteResponseDTO atualizar(Long id, PacienteRequestDTO dto, String enderecoIp) {
+    public PacienteResponseDTO atualizar(UUID id, PacienteRequestDTO dto, String enderecoIp) {
         Paciente paciente = buscarEntidadeAtiva(id);
         paciente.setNome(dto.nome());
         paciente.setDataNascimento(dto.dataNascimento());
@@ -102,7 +103,7 @@ public class PacienteService {
     }
 
     @Transactional
-    public void inativar(Long id, String enderecoIp) {
+    public void inativar(UUID id, String enderecoIp) {
         Paciente paciente = buscarEntidadeAtiva(id);
         paciente.realizarSoftDelete();
         pacienteRepository.save(paciente);

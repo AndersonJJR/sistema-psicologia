@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Entidade PACIENTES com salvaguardas operacionais para telessaúde e gestão de crises:
@@ -36,9 +37,9 @@ import java.time.LocalDate;
 public class Paciente extends EntidadeAuditavel {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_paciente")
-    private Long idPaciente;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_paciente", updatable = false, nullable = false)
+    private UUID idPaciente;
 
     @Column(name = "nome", nullable = false, length = 150)
     private String nome;

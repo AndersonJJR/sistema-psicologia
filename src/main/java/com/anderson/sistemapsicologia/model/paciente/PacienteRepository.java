@@ -5,18 +5,19 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface PacienteRepository extends JpaRepository<Paciente, Long> {
+public interface PacienteRepository extends JpaRepository<Paciente, UUID> {
 
     List<Paciente> findAllByAtivoTrue();
 
-    Optional<Paciente> findByIdPacienteAndAtivoTrue(Long idPaciente);
+    Optional<Paciente> findByIdPacienteAndAtivoTrue(UUID idPaciente);
 
     boolean existsByCpf(String cpf);
 
     @Override
-    default void deleteById(Long id) {
+    default void deleteById(UUID id) {
         throw new UnsupportedOperationException(
                 "Exclusão física (hard delete) proibida pela Lei nº 13.787/2018. Utilize Soft Delete."
         );
