@@ -4,9 +4,10 @@ import com.anderson.sistemapsicologia.model.auditoria.AcaoAuditoria;
 import com.anderson.sistemapsicologia.model.auditoria.LogAuditoria;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record LogAuditoriaResponseDTO(
-        Long idLog,
+        UUID idLog,
         Instant carimboTempoUtc,
         String idUsuarioOperador,
         String enderecoIp,

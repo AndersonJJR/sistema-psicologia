@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Entidade de auditoria no modelo append-only (apenas inserções, sem atualizações ou exclusões).
@@ -33,9 +34,9 @@ import java.time.Instant;
 public class LogAuditoria {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id_log", updatable = false, nullable = false)
-    private Long idLog;
+    private UUID idLog;
 
     @Column(name = "carimbo_tempo_utc", updatable = false, nullable = false)
     private Instant carimboTempoUtc;

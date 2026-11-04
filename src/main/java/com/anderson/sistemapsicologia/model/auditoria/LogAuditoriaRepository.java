@@ -4,16 +4,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface LogAuditoriaRepository extends JpaRepository<LogAuditoria, Long> {
+public interface LogAuditoriaRepository extends JpaRepository<LogAuditoria, UUID> {
 
     List<LogAuditoria> findByIdRecursoAcessadoContainingOrderByCarimboTempoUtcDesc(String idRecursoAcessado);
 
     List<LogAuditoria> findAllByOrderByCarimboTempoUtcDesc();
 
     @Override
-    default void deleteById(Long id) {
+    default void deleteById(UUID id) {
         throw new UnsupportedOperationException("LOGS_AUDITORIA é append-only: exclusões não são permitidas.");
     }
 
