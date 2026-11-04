@@ -39,9 +39,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util. Base64;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -83,39 +84,45 @@ class SistemaPsicologiaConformidadeTests {
                 repository, agendamentoService, auditoriaService, autenticacaoService
         );
 
-        Psicologo psicologoTitular = Psicologo.builder().idPsicologo(10L).nome("Dra. Ana").numeroEpsi("EPSI-001").build();
-        Paciente paciente = Paciente.builder().idPaciente(100L).nome("Carlos").build();
+        UUID idPsicologoTitular = UUID.randomUUID();
+        UUID idPaciente = UUID.randomUUID();
+        UUID idAgendamento = UUID.randomUUID();
+        UUID idRegistro = UUID.randomUUID();
+        UUID idOutroPsicologo = UUID.randomUUID();
+
+        Psicologo psicologoTitular = Psicologo.builder().idPsicologo(idPsicologoTitular).nome("Dra. Ana").numeroEpsi("EPSI-001").build();
+        Paciente paciente = Paciente.builder().idPaciente(idPaciente).nome("Carlos").build();
         Agendamento agendamento = Agendamento.builder()
-                .idAgendamento(500L)
+                .idAgendamento(idAgendamento)
                 .psicologo(psicologoTitular)
                 .paciente(paciente)
                 .build();
 
         RegistroDocumental registroExistente = RegistroDocumental.builder()
-                .idRegistroDocumental(1L)
+                .idRegistroDocumental(idRegistro)
                 .agendamento(agendamento)
                 .hipotesesProvisorias("Hipótese sigilosa")
                 .notasSupervisao("Nota de supervisão")
                 .dataRegistro(Instant.now())
                 .build();
 
-        when(repository.findByIdRegistroDocumentalAndAtivoTrue(1L)).thenReturn(Optional.of(registroExistente));
+        when(repository.findByIdRegistroDocumentalAndAtivoTrue(idRegistro)).thenReturn(Optional.of(registroExistente));
 
-        // Psicólogo #25 (outro profissional da mesma clínica) tenta ler o registro do Psicólogo #10
-        when(autenticacaoService.obterIdPsicologoAutenticado()).thenReturn(Optional.of(25L));
+        // Psicólogo (outro profissional da mesma clínica) tenta ler o registro do Psicólogo titular
+        when(autenticacaoService.obterIdPsicologoAutenticado()).thenReturn(Optional.of(idOutroPsicologo));
         when(autenticacaoService.obterLoginOperadorAtual()).thenReturn("psicologo.outro@clinica.com");
 
         assertThrows(
                 AcessoNegadoClinicoException.class,
-                () -> service.buscarPorId(1L, "127.0.0.1")
+                () -> service.buscarPorId(idRegistro, "127.0.0.1")
         );
 
-        // Psicólogo titular #10 consegue ler normalmente
-        when(autenticacaoService.obterIdPsicologoAutenticado()).thenReturn(Optional.of(10L));
+        // Psicólogo titular consegue ler normalmente
+        when(autenticacaoService.obterIdPsicologoAutenticado()).thenReturn(Optional.of(idPsicologoTitular));
         when(autenticacaoService.obterLoginOperadorAtual()).thenReturn("dra.ana@clinica.com");
 
-        RegistroDocumentalResponseDTO resposta = service.buscarPorId(1L, "127.0.0.1");
-        assertEquals(10L, resposta.idPsicologoTitular());
+        RegistroDocumentalResponseDTO resposta = service.buscarPorId(idRegistro, "127.0.0.1");
+        assertEquals(idPsicologoTitular, resposta.idPsicologoTitular());
         assertEquals("Hipótese sigilosa", resposta.hipotesesProvisorias());
     }
 
@@ -153,11 +160,14 @@ class SistemaPsicologiaConformidadeTests {
                 3600000L
         );
 
+        UUID idUsuario = UUID.randomUUID();
+        UUID idPsicologoVinculado = UUID.randomUUID();
+
         Usuario usuario = Usuario.builder()
-                .idUsuario(7L)
+                .idUsuario(idUsuario)
                 .login("psicologa.titular")
                 .perfil(PerfilUsuario.PSICOLOGO)
-                .idPsicologoVinculado(42L)
+                .idPsicologoVinculado(idPsicologoVinculado)
                 .senhaHash("hash")
                 .build();
 
@@ -167,14 +177,15 @@ class SistemaPsicologiaConformidadeTests {
         assertTrue(claims.isPresent());
         assertEquals("psicologa.titular", claims.get().login());
         assertEquals(PerfilUsuario.PSICOLOGO, claims.get().perfil());
-        assertEquals(42L, claims.get().idPsicologoVinculado());
+        assertEquals(idPsicologoVinculado, claims.get().idPsicologoVinculado());
+        assertEquals(idUsuario, claims.get().idUsuario());
     }
 
     @Test
     @DisplayName("5. Retenção de 20 anos (Lei 13.787/2018): Soft Delete preserva registro e registra deleted_at")
     void deveExecutarSoftDeletePreservandoDadosClinicos() {
         Paciente paciente = Paciente.builder()
-                .idPaciente(1L)
+                .idPaciente(UUID.randomUUID())
                 .nome("Mariana Silva")
                 .cpf("123.456.789-00")
                 .contatoEmergenciaNome("João Silva")
@@ -210,8 +221,13 @@ class SistemaPsicologiaConformidadeTests {
                 autenticacaoService
         );
 
+        UUID idPaciente = UUID.randomUUID();
+        UUID idPsicologo = UUID.randomUUID();
+        UUID idAgendamento = UUID.randomUUID();
+        UUID idProntuario = UUID.randomUUID();
+
         Paciente paciente = Paciente.builder()
-                .idPaciente(99L)
+                .idPaciente(idPaciente)
                 .nome("Paciente Portabilidade LGPD")
                 .cpf("111.222.333-44")
                 .dataNascimento(LocalDate.of(1992, 5, 14))
@@ -223,14 +239,14 @@ class SistemaPsicologiaConformidadeTests {
                 .build();
 
         Psicologo psicologo = Psicologo.builder()
-                .idPsicologo(1L)
+                .idPsicologo(idPsicologo)
                 .nome("Dr. Roberto")
                 .crp("06/12345")
                 .numeroEpsi("EPSI-2026-99")
                 .build();
 
         Agendamento agendamento = Agendamento.builder()
-                .idAgendamento(10L)
+                .idAgendamento(idAgendamento)
                 .paciente(paciente)
                 .psicologo(psicologo)
                 .dataHoraSessao(LocalDateTime.of(2026, 10, 15, 14, 0))
@@ -240,20 +256,20 @@ class SistemaPsicologiaConformidadeTests {
                 .build();
 
         ProntuarioClinico prontuario = ProntuarioClinico.builder()
-                .idProntuario(55L)
+                .idProntuario(idProntuario)
                 .agendamento(agendamento)
                 .procedimentosTecnicos("Escuta clínica e reestruturação cognitiva")
                 .evolucaoObservavel("Paciente apresentou redução significativa de sintomas ansiosos")
                 .dataRegistro(Instant.now())
                 .build();
 
-        when(pacienteService.buscarEntidadePorId(99L)).thenReturn(paciente);
-        when(agendamentoRepo.findAllByPacienteIdPacienteOrderByDataHoraSessaoDesc(99L)).thenReturn(List.of(agendamento));
-        when(prontuarioRepo.findAllByAgendamentoPacienteIdPacienteAndAtivoTrueOrderByDataRegistroDesc(99L)).thenReturn(List.of(prontuario));
-        when(pagamentoRepo.findAllByAgendamentoPacienteIdPacienteAndAtivoTrueOrderByDataPagamentoDesc(99L)).thenReturn(List.of());
+        when(pacienteService.buscarEntidadePorId(idPaciente)).thenReturn(paciente);
+        when(agendamentoRepo.findAllByPacienteIdPacienteOrderByDataHoraSessaoDesc(idPaciente)).thenReturn(List.of(agendamento));
+        when(prontuarioRepo.findAllByAgendamentoPacienteIdPacienteAndAtivoTrueOrderByDataRegistroDesc(idPaciente)).thenReturn(List.of(prontuario));
+        when(pagamentoRepo.findAllByAgendamentoPacienteIdPacienteAndAtivoTrueOrderByDataPagamentoDesc(idPaciente)).thenReturn(List.of());
         when(autenticacaoService.obterLoginOperadorAtual()).thenReturn("dr.roberto");
 
-        PacienteExportacaoDTO exportacao = exportacaoService.exportarDossiePaciente(99L, "127.0.0.1");
+        PacienteExportacaoDTO exportacao = exportacaoService.exportarDossiePaciente(idPaciente, "127.0.0.1");
 
         assertNotNull(exportacao);
         assertEquals("Paciente Portabilidade LGPD", exportacao.dadosDemograficos().nome());
