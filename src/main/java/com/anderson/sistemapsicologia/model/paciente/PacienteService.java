@@ -58,6 +58,14 @@ public class PacienteService {
     }
 
     @Transactional(readOnly = true)
+    public List<PacienteResponseDTO> listarTodos() {
+        return pacienteRepository.findAll()
+                .stream()
+                .map(PacienteResponseDTO::fromEntity)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public Paciente buscarEntidadePorId(UUID id) {
         return pacienteRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Paciente não encontrado: " + id));
@@ -83,8 +91,12 @@ public class PacienteService {
 
     @Transactional
     public PacienteResponseDTO atualizar(UUID id, PacienteRequestDTO dto, String enderecoIp) {
-        Paciente paciente = buscarEntidadeAtiva(id);
+        Paciente paciente = buscarEntidadePorId(id);
+        if (!paciente.getCpf().equals(dto.cpf()) && pacienteRepository.existsByCpf(dto.cpf())) {
+            throw new RegraNegocioException("Já existe outro paciente cadastrado com o CPF informado.");
+        }
         paciente.setNome(dto.nome());
+        paciente.setCpf(dto.cpf());
         paciente.setDataNascimento(dto.dataNascimento());
         paciente.setEmail(dto.email());
         paciente.setTelefone(dto.telefone());
@@ -98,6 +110,24 @@ public class PacienteService {
                 enderecoIp,
                 AcaoAuditoria.ALTERACAO,
                 "PACIENTE:" + id
+        );
+        return PacienteResponseDTO.fromEntity(salvo);
+    }
+
+    @Transactional
+    public PacienteResponseDTO alterarStatusAtivo(UUID id, boolean ativo, String enderecoIp) {
+        Paciente paciente = buscarEntidadePorId(id);
+        if (ativo) {
+            paciente.reativar();
+        } else {
+            paciente.realizarSoftDelete();
+        }
+        Paciente salvo = pacienteRepository.save(paciente);
+        auditoriaService.registrarAcao(
+                autenticacaoService.obterLoginOperadorAtual(),
+                enderecoIp,
+                AcaoAuditoria.ALTERACAO,
+                "PACIENTE:STATUS_" + (ativo ? "ATIVO:" : "INATIVO:") + id
         );
         return PacienteResponseDTO.fromEntity(salvo);
     }
