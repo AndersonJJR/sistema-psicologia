@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsiCare | Gestão Clínica em Psicologia (CFP & LGPD)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans">
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-teal-400">PsiCare Clinical Platform</h1>
+                <p class="text-xs text-slate-400">Conformidade Resolução CFP nº 001/2009 • LGPD • Lei nº 13.787/2018 (Retenção 20 anos)</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-teal-500/10 text-teal-300 border border-teal-500/30">
+                    AES-256-GCM Ativo
+                </span>
+                <span class="px-3 py-1 rounded-full text-xs font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/30">
+                    RBAC + JWT
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+            <h2 class="text-base font-semibold text-teal-300 mb-2">1. Segregação Ética CFP (001/2009)</h2>
+            <p class="text-xs text-slate-400 mb-4">
+                Separação física e lógica entre <code>PRONTUARIOS_CLINICOS</code> (acessível ao paciente)
+                e <code>REGISTROS_DOCUMENTAIS</code> (criptografado com AES-256 e restrito ao psicólogo titular via JWT).
+            </p>
+            <div class="space-y-2 text-xs text-slate-300">
+                <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                    <span class="font-semibold text-emerald-400">POST /api/v1/prontuarios</span>
+                    <p class="text-slate-400 mt-1">Procedimentos técnicos e evolução observável.</p>
+                </div>
+                <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                    <span class="font-semibold text-amber-400">POST /api/v1/registros-documentais</span>
+                    <p class="text-slate-400 mt-1">Hipóteses provisórias e notas de supervisão (ALE AES-256).</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+            <h2 class="text-base font-semibold text-teal-300 mb-2">2. Telessaúde & Gestão de Crises</h2>
+            <p class="text-xs text-slate-400 mb-4">
+                Validação de cadastro <code>numero_epsi</code> obrigatório e rastreamento de contato de emergência e
+                <code>endereco_local_sessao</code> para suporte imediato em descompensações psíquicas graves.
+            </p>
+            <div class="space-y-2 text-xs text-slate-300">
+                <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                    <span class="font-semibold text-sky-400">POST /api/v1/psicologos</span>
+                    <p class="text-slate-400 mt-1">Constraints UNIQUE em CPF, CRP e Número e-Psi.</p>
+                </div>
+                <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                    <span class="font-semibold text-sky-400">POST /api/v1/pacientes</span>
+                    <p class="text-slate-400 mt-1">Contatos de emergência e endereço físico da teleconsulta.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-6">
+            <h2 class="text-base font-semibold text-teal-300 mb-2">3. Split Financeiro & Portabilidade LGPD</h2>
+            <p class="text-xs text-slate-400 mb-4">
+                Prevenção de bitributação em clínicas compartilhadas e exportação em lote (JSON, CSV e PDF/A-1b).
+            </p>
+            <div class="space-y-2 text-xs text-slate-300">
+                <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                    <span class="font-semibold text-purple-400">POST /api/v1/pagamentos</span>
+                    <p class="text-slate-400 mt-1">Split: <code>valor_total = taxa_clinica_infraestrutura + repasse_profissional</code>.</p>
+                </div>
+                <div class="p-3 rounded-lg bg-slate-950 border border-slate-800">
+                    <span class="font-semibold text-teal-400">GET /api/v1/exportacao/paciente/{id}</span>
+                    <p class="text-slate-400 mt-1">Exportação estruturada JSON/CSV + PDF/A-1b para guarda de 20 anos.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

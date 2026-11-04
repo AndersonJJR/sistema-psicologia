@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  mysql-db:
+    image: mysql:8.4
+    container_name: psicologia-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: psicologia
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_psicologia_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sistema-psicologia-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: psicologia-api
+    restart: unless-stopped
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    environment:
+      DATASOURCE_URL: jdbc:mysql://mysql-db:3306/psicologia?createDatabaseIfNotExist=true&serverTimezone=UTC
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_psicologia_data:
