@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 
 /**
  * Endpoint de Portabilidade em Lote (/api/v1/exportacao/paciente/{id}) conforme LGPD e CFP.
@@ -29,7 +30,7 @@ public class ExportacaoPacienteController {
 
     @GetMapping("/paciente/{id}")
     public ResponseEntity<PacienteExportacaoDTO> exportarConsolidado(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
@@ -38,7 +39,7 @@ public class ExportacaoPacienteController {
 
     @GetMapping(value = "/paciente/{id}/csv", produces = "text/csv")
     public ResponseEntity<byte[]> exportarCsv(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
@@ -51,7 +52,7 @@ public class ExportacaoPacienteController {
 
     @GetMapping(value = "/paciente/{id}/pdfa", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportarPdfA(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             HttpServletRequest request
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);

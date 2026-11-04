@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Serviço responsável pela Portabilidade em Lote (LGPD Art. 18, V e Lei nº 13.787/2018),
@@ -38,7 +39,7 @@ public class ExportacaoPortabilidadeService {
     private final AutenticacaoService autenticacaoService;
 
     @Transactional
-    public PacienteExportacaoDTO exportarDossiePaciente(Long idPaciente, String enderecoIp) {
+    public PacienteExportacaoDTO exportarDossiePaciente(UUID idPaciente, String enderecoIp) {
         Paciente paciente = pacienteService.buscarEntidadePorId(idPaciente);
         PacienteResponseDTO pacienteDto = PacienteResponseDTO.fromEntity(paciente);
 
@@ -84,7 +85,7 @@ public class ExportacaoPortabilidadeService {
     }
 
     @Transactional
-    public byte[] exportarPdfABinario(Long idPaciente, String enderecoIp) {
+    public byte[] exportarPdfABinario(UUID idPaciente, String enderecoIp) {
         Paciente paciente = pacienteService.buscarEntidadePorId(idPaciente);
         PacienteResponseDTO pacienteDto = PacienteResponseDTO.fromEntity(paciente);
 
