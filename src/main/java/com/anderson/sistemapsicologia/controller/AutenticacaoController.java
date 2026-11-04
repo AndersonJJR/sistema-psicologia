@@ -2,6 +2,7 @@ package com.anderson.sistemapsicologia.controller;
 
 import com.anderson.sistemapsicologia.model.usuario.AutenticacaoService;
 import com.anderson.sistemapsicologia.model.usuario.dtos.LoginRequestDTO;
+import com.anderson.sistemapsicologia.model.usuario.dtos.RegistroPsicologoAuthRequestDTO;
 import com.anderson.sistemapsicologia.model.usuario.dtos.TokenResponseDTO;
 import com.anderson.sistemapsicologia.model.usuario.dtos.UsuarioCreateDTO;
 import com.anderson.sistemapsicologia.model.usuario.dtos.UsuarioResponseDTO;
@@ -29,6 +30,16 @@ public class AutenticacaoController {
     ) {
         String ip = RequisicaoHttpUtils.extrairIpCliente(request);
         return ResponseEntity.ok(autenticacaoService.autenticar(dto, ip));
+    }
+
+    @PostMapping("/registrar-psicologo")
+    public ResponseEntity<TokenResponseDTO> registrarPsicologo(
+            @Valid @RequestBody RegistroPsicologoAuthRequestDTO dto,
+            HttpServletRequest request
+    ) {
+        String ip = RequisicaoHttpUtils.extrairIpCliente(request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(autenticacaoService.registrarPsicologo(dto, ip));
     }
 
     @PostMapping("/usuarios")
