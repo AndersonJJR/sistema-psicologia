@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -31,9 +32,9 @@ import java.util.List;
 public class Usuario extends EntidadeAuditavel implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
-    private Long idUsuario;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_usuario", updatable = false, nullable = false)
+    private UUID idUsuario;
 
     @Column(name = "login", nullable = false, unique = true, length = 100)
     private String login;
@@ -46,7 +47,7 @@ public class Usuario extends EntidadeAuditavel implements UserDetails {
     private PerfilUsuario perfil;
 
     @Column(name = "id_psicologo_vinculado")
-    private Long idPsicologoVinculado;
+    private UUID idPsicologoVinculado;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

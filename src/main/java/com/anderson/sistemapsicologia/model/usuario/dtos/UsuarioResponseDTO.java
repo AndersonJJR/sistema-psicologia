@@ -3,11 +3,13 @@ package com.anderson.sistemapsicologia.model.usuario.dtos;
 import com.anderson.sistemapsicologia.model.usuario.PerfilUsuario;
 import com.anderson.sistemapsicologia.model.usuario.Usuario;
 
+import java.util.UUID;
+
 public record UsuarioResponseDTO(
-        Long idUsuario,
+        UUID idUsuario,
         String login,
         PerfilUsuario perfil,
-        Long idPsicologoVinculado,
+        UUID idPsicologoVinculado,
         boolean ativo
 ) {
     public static UsuarioResponseDTO fromEntity(Usuario usuario) {

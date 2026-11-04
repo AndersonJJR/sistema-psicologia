@@ -12,6 +12,7 @@ import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,8 +44,8 @@ public class JwtTokenService {
         StringBuilder payload = new StringBuilder("{");
         payload.append("\"sub\":\"").append(escapeJson(usuario.getLogin())).append("\",");
         payload.append("\"role\":\"").append(usuario.getPerfil().name()).append("\",");
-        payload.append("\"uid\":").append(usuario.getIdUsuario() != null ? usuario.getIdUsuario() : 0).append(",");
-        payload.append("\"psicologoId\":").append(usuario.getIdPsicologoVinculado() != null ? usuario.getIdPsicologoVinculado() : "null").append(",");
+        payload.append("\"uid\":").append(usuario.getIdUsuario() != null ? "\"" + usuario.getIdUsuario() + "\"" : "null").append(",");
+        payload.append("\"psicologoId\":").append(usuario.getIdPsicologoVinculado() != null ? "\"" + usuario.getIdPsicologoVinculado() + "\"" : "null").append(",");
         payload.append("\"iat\":").append(agora.getEpochSecond()).append(",");
         payload.append("\"exp\":").append(expira.getEpochSecond());
         payload.append("}");
@@ -97,9 +98,9 @@ public class JwtTokenService {
             }
 
             PerfilUsuario perfil = PerfilUsuario.valueOf(roleStr);
-            Long uid = uidStr != null && !uidStr.equals("null") ? Long.parseLong(uidStr) : null;
-            Long psicologoId = psicologoIdStr != null && !psicologoIdStr.equals("null")
-                    ? Long.parseLong(psicologoIdStr)
+            UUID uid = uidStr != null && !uidStr.equals("null") && !uidStr.isBlank() ? UUID.fromString(uidStr) : null;
+            UUID psicologoId = psicologoIdStr != null && !psicologoIdStr.equals("null") && !psicologoIdStr.isBlank()
+                    ? UUID.fromString(psicologoIdStr)
                     : null;
 
             return Optional.of(new ClaimsJwt(sub, perfil, uid, psicologoId, Instant.ofEpochSecond(exp)));
@@ -142,8 +143,8 @@ public class JwtTokenService {
     public record ClaimsJwt(
             String login,
             PerfilUsuario perfil,
-            Long idUsuario,
-            Long idPsicologoVinculado,
+            UUID idUsuario,
+            UUID idPsicologoVinculado,
             Instant expiraEm
     ) {
     }

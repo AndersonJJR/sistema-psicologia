@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.UUID;
+
 public record UsuarioCreateDTO(
         @NotBlank(message = "O login é obrigatório")
         String login,
@@ -13,6 +15,6 @@ public record UsuarioCreateDTO(
         String senha,
         @NotNull(message = "O perfil de acesso é obrigatório")
         PerfilUsuario perfil,
-        Long idPsicologoVinculado
+        UUID idPsicologoVinculado
 ) {
 }

@@ -10,7 +10,7 @@ export interface SessaoJwt {
     token: string;
     login: string;
     perfil: PerfilUsuario;
-    idPsicologoVinculado?: number;
+    idPsicologoVinculado?: string;
 }
 
 export class ClinicaRbacAuthGuard {

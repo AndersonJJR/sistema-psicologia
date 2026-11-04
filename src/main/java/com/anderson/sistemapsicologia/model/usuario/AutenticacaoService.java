@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -82,7 +83,7 @@ public class AutenticacaoService {
         return auth.getName();
     }
 
-    public Optional<Long> obterIdPsicologoAutenticado() {
+    public Optional<UUID> obterIdPsicologoAutenticado() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             return Optional.empty();
