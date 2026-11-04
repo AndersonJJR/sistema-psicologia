@@ -65,6 +65,24 @@ public class ProntuarioClinicoController {
         return ResponseEntity.ok(prontuarioService.listarPorPaciente(idPaciente, ip));
     }
 
+    @GetMapping("/agendamento/{idAgendamento}")
+    public ResponseEntity<ProntuarioClinicoResponseDTO> buscarPorAgendamento(
+            @PathVariable UUID idAgendamento,
+            HttpServletRequest request
+    ) {
+        String ip = RequisicaoHttpUtils.extrairIpCliente(request);
+        return ResponseEntity.ok(prontuarioService.buscarPorAgendamento(idAgendamento, ip));
+    }
+
+    @PostMapping("/agendamento/{idAgendamento}/assinar")
+    public ResponseEntity<ProntuarioClinicoResponseDTO> assinarPorAgendamento(
+            @PathVariable UUID idAgendamento,
+            HttpServletRequest request
+    ) {
+        String ip = RequisicaoHttpUtils.extrairIpCliente(request);
+        return ResponseEntity.ok(prontuarioService.assinarPorAgendamento(idAgendamento, ip));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(
             @PathVariable UUID id,

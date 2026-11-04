@@ -17,6 +17,8 @@ public interface RegistroDocumentalRepository extends JpaRepository<RegistroDocu
 
     Optional<RegistroDocumental> findByIdRegistroDocumentalAndAtivoTrue(UUID idRegistroDocumental);
 
+    Optional<RegistroDocumental> findByAgendamentoIdAgendamentoAndAtivoTrue(UUID idAgendamento);
+
     boolean existsByAgendamentoIdAgendamento(UUID idAgendamento);
 
     @Override

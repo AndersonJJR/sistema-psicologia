@@ -16,6 +16,8 @@ public interface ProntuarioClinicoRepository extends JpaRepository<ProntuarioCli
 
     Optional<ProntuarioClinico> findByIdProntuarioAndAtivoTrue(UUID idProntuario);
 
+    Optional<ProntuarioClinico> findByAgendamentoIdAgendamentoAndAtivoTrue(UUID idAgendamento);
+
     boolean existsByAgendamentoIdAgendamento(UUID idAgendamento);
 
     @Override

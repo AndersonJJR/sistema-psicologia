@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -36,18 +37,38 @@ public class RegistroDocumentalService {
     public RegistroDocumentalResponseDTO criar(RegistroDocumentalRequestDTO dto, String enderecoIp) {
         UUID idPsicologoJwt = exigirPsicologoTitularAutenticado();
 
-        if (registroDocumentalRepository.existsByAgendamentoIdAgendamento(dto.idAgendamento())) {
-            throw new RegraNegocioException("Já existe registro documental para o agendamento informado.");
-        }
-
         Agendamento agendamento = agendamentoService.buscarEntidadeAtiva(dto.idAgendamento());
         validarTitularidade(agendamento.getPsicologo().getIdPsicologo(), idPsicologoJwt, enderecoIp, "AGENDAMENTO:" + dto.idAgendamento());
+
+        Optional<RegistroDocumental> existenteOpt = registroDocumentalRepository
+                .findByAgendamentoIdAgendamentoAndAtivoTrue(dto.idAgendamento());
+
+        if (existenteOpt.isPresent()) {
+            RegistroDocumental existente = existenteOpt.get();
+            if (existente.isAssinado()) {
+                throw new RegraNegocioException(
+                        "O registro documental desta sessão já foi selado por assinatura digital e é imutável."
+                );
+            }
+            existente.setHipotesesProvisorias(dto.hipotesesProvisorias());
+            existente.setNotasSupervisao(dto.notasSupervisao());
+            existente.setDataRegistro(Instant.now());
+            RegistroDocumental atualizado = registroDocumentalRepository.save(existente);
+            auditoriaService.registrarAcao(
+                    autenticacaoService.obterLoginOperadorAtual(),
+                    enderecoIp,
+                    AcaoAuditoria.ALTERACAO,
+                    "REGISTRO_DOCUMENTAL:RASCUNHO:" + atualizado.getIdRegistroDocumental()
+            );
+            return RegistroDocumentalResponseDTO.fromEntity(atualizado);
+        }
 
         RegistroDocumental registro = RegistroDocumental.builder()
                 .agendamento(agendamento)
                 .hipotesesProvisorias(dto.hipotesesProvisorias())
                 .notasSupervisao(dto.notasSupervisao())
                 .dataRegistro(Instant.now())
+                .assinado(false)
                 .build();
 
         RegistroDocumental salvo = registroDocumentalRepository.save(registro);
@@ -58,6 +79,29 @@ public class RegistroDocumentalService {
                 "REGISTRO_DOCUMENTAL:" + salvo.getIdRegistroDocumental()
         );
         return RegistroDocumentalResponseDTO.fromEntity(salvo);
+    }
+
+    @Transactional(readOnly = true)
+    public RegistroDocumentalResponseDTO buscarPorAgendamento(UUID idAgendamento, String enderecoIp) {
+        UUID idPsicologoJwt = exigirPsicologoTitularAutenticado();
+        RegistroDocumental registro = registroDocumentalRepository
+                .findByAgendamentoIdAgendamentoAndAtivoTrue(idAgendamento)
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Registro documental não encontrado para o agendamento: " + idAgendamento
+                ));
+        validarTitularidade(
+                registro.getAgendamento().getPsicologo().getIdPsicologo(),
+                idPsicologoJwt,
+                enderecoIp,
+                "REGISTRO_DOCUMENTAL:AGENDAMENTO:" + idAgendamento
+        );
+        auditoriaService.registrarAcao(
+                autenticacaoService.obterLoginOperadorAtual(),
+                enderecoIp,
+                AcaoAuditoria.LEITURA,
+                "REGISTRO_DOCUMENTAL:AGENDAMENTO:" + idAgendamento
+        );
+        return RegistroDocumentalResponseDTO.fromEntity(registro);
     }
 
     @Transactional(readOnly = true)

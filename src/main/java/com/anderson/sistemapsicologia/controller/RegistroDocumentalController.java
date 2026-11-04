@@ -56,6 +56,15 @@ public class RegistroDocumentalController {
         return ResponseEntity.ok(registroDocumentalService.buscarPorId(id, ip));
     }
 
+    @GetMapping("/agendamento/{idAgendamento}")
+    public ResponseEntity<RegistroDocumentalResponseDTO> buscarPorAgendamento(
+            @PathVariable UUID idAgendamento,
+            HttpServletRequest request
+    ) {
+        String ip = RequisicaoHttpUtils.extrairIpCliente(request);
+        return ResponseEntity.ok(registroDocumentalService.buscarPorAgendamento(idAgendamento, ip));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> inativar(
             @PathVariable UUID id,

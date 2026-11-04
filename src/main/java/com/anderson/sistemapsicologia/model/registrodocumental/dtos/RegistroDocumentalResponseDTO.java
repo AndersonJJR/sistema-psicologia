@@ -13,6 +13,7 @@ public record RegistroDocumentalResponseDTO(
         String hipotesesProvisorias,
         String notasSupervisao,
         Instant dataRegistro,
+        boolean assinado,
         boolean ativo,
         Instant deletedAt
 ) {
@@ -25,6 +26,7 @@ public record RegistroDocumentalResponseDTO(
                 entity.getHipotesesProvisorias(),
                 entity.getNotasSupervisao(),
                 entity.getDataRegistro(),
+                entity.isAssinado(),
                 entity.isAtivo(),
                 entity.getDeletedAt()
         );

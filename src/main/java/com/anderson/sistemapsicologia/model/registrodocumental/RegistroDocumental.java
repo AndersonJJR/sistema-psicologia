@@ -57,6 +57,10 @@ public class RegistroDocumental extends EntidadeAuditavel {
     @Column(name = "data_registro", nullable = false)
     private Instant dataRegistro;
 
+    @Builder.Default
+    @Column(name = "assinado", nullable = false, columnDefinition = "boolean default false")
+    private boolean assinado = false;
+
     @PrePersist
     protected void prePersistRegistro() {
         super.onCreate();

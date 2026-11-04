@@ -53,6 +53,13 @@ public class ProntuarioClinico extends EntidadeAuditavel {
     @Column(name = "data_registro", nullable = false)
     private Instant dataRegistro;
 
+    @Builder.Default
+    @Column(name = "assinado", nullable = false, columnDefinition = "boolean default false")
+    private boolean assinado = false;
+
+    @Column(name = "hash_assinatura", length = 128)
+    private String hashAssinatura;
+
     @PrePersist
     protected void prePersistProntuario() {
         super.onCreate();

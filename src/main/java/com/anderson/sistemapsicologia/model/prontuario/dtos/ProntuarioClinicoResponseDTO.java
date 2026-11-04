@@ -15,6 +15,8 @@ public record ProntuarioClinicoResponseDTO(
         String procedimentosTecnicos,
         String evolucaoObservavel,
         Instant dataRegistro,
+        boolean assinado,
+        String hashAssinatura,
         boolean ativo,
         Instant deletedAt
 ) {
@@ -29,6 +31,8 @@ public record ProntuarioClinicoResponseDTO(
                 entity.getProcedimentosTecnicos(),
                 entity.getEvolucaoObservavel(),
                 entity.getDataRegistro(),
+                entity.isAssinado(),
+                entity.getHashAssinatura(),
                 entity.isAtivo(),
                 entity.getDeletedAt()
         );
