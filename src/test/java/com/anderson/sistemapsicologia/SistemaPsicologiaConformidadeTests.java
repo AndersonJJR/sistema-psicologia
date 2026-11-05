@@ -18,6 +18,9 @@ import com.anderson.sistemapsicologia.model.pagamento.CalculadoraSplitPagamento;
 import com.anderson.sistemapsicologia.model.pagamento.PagamentoRepository;
 import com.anderson.sistemapsicologia.model.prontuario.ProntuarioClinico;
 import com.anderson.sistemapsicologia.model.prontuario.ProntuarioClinicoRepository;
+import com.anderson.sistemapsicologia.model.prontuario.ProntuarioClinicoService;
+import com.anderson.sistemapsicologia.model.prontuario.dtos.ProntuarioClinicoRequestDTO;
+import com.anderson.sistemapsicologia.model.prontuario.dtos.ProntuarioClinicoResponseDTO;
 import com.anderson.sistemapsicologia.model.psicologo.Psicologo;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumental;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumentalRepository;
@@ -281,5 +284,60 @@ class SistemaPsicologiaConformidadeTests {
         assertTrue(pdfTexto.startsWith("%PDF-1.4"));
         assertTrue(pdfTexto.contains("<pdfaid:part>1</pdfaid:part>"));
         assertTrue(pdfTexto.contains("<pdfaid:conformance>B</pdfaid:conformance>"));
+    }
+
+    @Test
+    @DisplayName("7. Assinatura Digital SHA-256 e Imutabilidade do Prontuário Clínico (CFP 001/2009)")
+    void deveAssinarProntuarioDigitalmenteEBloquearEdicoesPosteriores() {
+        ProntuarioClinicoRepository prontuarioRepo = Mockito.mock(ProntuarioClinicoRepository.class);
+        RegistroDocumentalRepository registroRepo = Mockito.mock(RegistroDocumentalRepository.class);
+        AgendamentoService agendamentoService = Mockito.mock(AgendamentoService.class);
+        AuditoriaService auditoriaService = Mockito.mock(AuditoriaService.class);
+        AutenticacaoService autenticacaoService = Mockito.mock(AutenticacaoService.class);
+
+        ProntuarioClinicoService service = new ProntuarioClinicoService(
+                prontuarioRepo,
+                registroRepo,
+                agendamentoService,
+                auditoriaService,
+                autenticacaoService
+        );
+
+        UUID idAgendamento = UUID.randomUUID();
+        Psicologo psicologo = Psicologo.builder().idPsicologo(UUID.randomUUID()).nome("Dra. Juliana").crp("06/142980").build();
+        Paciente paciente = Paciente.builder().idPaciente(UUID.randomUUID()).nome("Lucas").build();
+        Agendamento agendamento = Agendamento.builder()
+                .idAgendamento(idAgendamento)
+                .psicologo(psicologo)
+                .paciente(paciente)
+                .build();
+
+        ProntuarioClinico rascunho = ProntuarioClinico.builder()
+                .idProntuario(UUID.randomUUID())
+                .agendamento(agendamento)
+                .procedimentosTecnicos("Procedimentos iniciais")
+                .evolucaoObservavel("Evolução inicial")
+                .dataRegistro(Instant.now())
+                .assinado(false)
+                .build();
+
+        when(prontuarioRepo.findByAgendamentoIdAgendamentoAndAtivoTrue(idAgendamento)).thenReturn(Optional.of(rascunho));
+        when(prontuarioRepo.save(any(ProntuarioClinico.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(registroRepo.findByAgendamentoIdAgendamentoAndAtivoTrue(idAgendamento)).thenReturn(Optional.empty());
+        when(autenticacaoService.obterLoginOperadorAtual()).thenReturn("dra.juliana@psicosafe.com.br");
+
+        ProntuarioClinicoResponseDTO assinado = service.assinarPorAgendamento(idAgendamento, "127.0.0.1");
+        assertTrue(assinado.assinado());
+        assertNotNull(assinado.hashAssinatura());
+        assertTrue(assinado.hashAssinatura().startsWith("SHA-256 • "));
+
+        // Tentativa de alterar prontuário já assinado deve falhar
+        assertThrows(
+                RegraNegocioException.class,
+                () -> service.criar(
+                        new ProntuarioClinicoRequestDTO(idAgendamento, "Tentativa de edição", "Evolução alterada"),
+                        "127.0.0.1"
+                )
+        );
     }
 }
