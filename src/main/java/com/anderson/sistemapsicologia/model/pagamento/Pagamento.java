@@ -60,6 +60,10 @@ public class Pagamento extends EntidadeAuditavel {
     @Column(name = "status_split", nullable = false, length = 25)
     private StatusSplit statusSplit;
 
+    @Builder.Default
+    @Column(name = "meio_pagamento", nullable = false, length = 25, columnDefinition = "varchar(25) default 'PIX'")
+    private String meioPagamento = "PIX";
+
     @Column(name = "data_pagamento", nullable = false)
     private Instant dataPagamento;
 
@@ -71,6 +75,9 @@ public class Pagamento extends EntidadeAuditavel {
         }
         if (this.statusSplit == null) {
             this.statusSplit = StatusSplit.PENDENTE;
+        }
+        if (this.meioPagamento == null || this.meioPagamento.isBlank()) {
+            this.meioPagamento = "PIX";
         }
     }
 }

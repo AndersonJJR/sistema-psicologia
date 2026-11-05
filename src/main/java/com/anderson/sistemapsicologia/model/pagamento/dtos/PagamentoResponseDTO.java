@@ -12,12 +12,15 @@ public record PagamentoResponseDTO(
         UUID idAgendamento,
         UUID idPaciente,
         String nomePaciente,
+        String cpfPaciente,
+        String modalidadeSessao,
         UUID idPsicologo,
         String nomePsicologo,
         BigDecimal valorTotal,
         BigDecimal taxaClinicaInfraestrutura,
         BigDecimal repasseProfissional,
         StatusSplit statusSplit,
+        String meioPagamento,
         Instant dataPagamento,
         boolean ativo
 ) {
@@ -27,12 +30,15 @@ public record PagamentoResponseDTO(
                 entity.getAgendamento().getIdAgendamento(),
                 entity.getAgendamento().getPaciente().getIdPaciente(),
                 entity.getAgendamento().getPaciente().getNome(),
+                entity.getAgendamento().getPaciente().getCpf(),
+                entity.getAgendamento().getModalidade().name(),
                 entity.getAgendamento().getPsicologo().getIdPsicologo(),
                 entity.getAgendamento().getPsicologo().getNome(),
                 entity.getValorTotal(),
                 entity.getTaxaClinicaInfraestrutura(),
                 entity.getRepasseProfissional(),
                 entity.getStatusSplit(),
+                entity.getMeioPagamento() != null ? entity.getMeioPagamento() : "PIX",
                 entity.getDataPagamento(),
                 entity.isAtivo()
         );

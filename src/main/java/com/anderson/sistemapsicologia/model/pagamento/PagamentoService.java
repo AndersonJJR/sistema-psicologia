@@ -40,12 +40,17 @@ public class PagamentoService {
                 dto.repasseProfissional()
         );
 
+        String meio = dto.meioPagamento() != null && !dto.meioPagamento().isBlank()
+                ? dto.meioPagamento().trim().toUpperCase()
+                : "PIX";
+
         Pagamento pagamento = Pagamento.builder()
                 .agendamento(agendamento)
                 .valorTotal(split.valorTotal())
                 .taxaClinicaInfraestrutura(split.taxaClinicaInfraestrutura())
                 .repasseProfissional(split.repasseProfissional())
                 .statusSplit(dto.statusSplit() != null ? dto.statusSplit() : StatusSplit.PENDENTE)
+                .meioPagamento(meio)
                 .dataPagamento(Instant.now())
                 .build();
 
@@ -81,5 +86,68 @@ public class PagamentoService {
                 .stream()
                 .map(PagamentoResponseDTO::fromEntity)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public String gerarCsvCarneLeao(String enderecoIp) {
+        List<Pagamento> pagamentos = pagamentoRepository.findAllByAtivoTrueOrderByDataPagamentoDesc();
+        auditoriaService.registrarAcao(
+                autenticacaoService.obterLoginOperadorAtual(),
+                enderecoIp,
+                AcaoAuditoria.EXPORTACAO,
+                "PAGAMENTO:EXPORTACAO_CARNE_LEAO_CSV"
+        );
+        StringBuilder sb = new StringBuilder();
+        sb.append("Data_Pagamento;CPF_Titular;Nome_Paciente;Valor_Bruto;Retencao_Clinica_30;Repasse_Profissional_Tributavel_70;Meio_Pagamento;Status_Split\n");
+        for (Pagamento p : pagamentos) {
+            sb.append(p.getDataPagamento()).append(";")
+                    .append(p.getAgendamento().getPaciente().getCpf()).append(";")
+                    .append(p.getAgendamento().getPaciente().getNome()).append(";")
+                    .append(p.getValorTotal()).append(";")
+                    .append(p.getTaxaClinicaInfraestrutura()).append(";")
+                    .append(p.getRepasseProfissional()).append(";")
+                    .append(p.getMeioPagamento() != null ? p.getMeioPagamento() : "PIX").append(";")
+                    .append(p.getStatusSplit().name()).append("\n");
+        }
+        return sb.toString();
+    }
+
+    @Transactional(readOnly = true)
+    public String gerarXmlSplitPagamento(UUID idPagamento, String enderecoIp) {
+        Pagamento p = idPagamento != null
+                ? pagamentoRepository.findByIdPagamentoAndAtivoTrue(idPagamento)
+                        .orElseThrow(() -> new RecursoNaoEncontradoException("Pagamento não encontrado: " + idPagamento))
+                : pagamentoRepository.findAllByAtivoTrueOrderByDataPagamentoDesc()
+                        .stream()
+                        .findFirst()
+                        .orElseThrow(() -> new RecursoNaoEncontradoException("Nenhum pagamento registrado para exportação XML."));
+
+        auditoriaService.registrarAcao(
+                autenticacaoService.obterLoginOperadorAtual(),
+                enderecoIp,
+                AcaoAuditoria.EXPORTACAO,
+                "PAGAMENTO:COMPROVANTE_XML:" + p.getIdPagamento()
+        );
+
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<ComprovanteSplitPagamento versao=\"1.0\" padrao=\"ReceitaFederal-NFSe\">\n" +
+                "  <IdTransacao>" + p.getIdPagamento() + "</IdTransacao>\n" +
+                "  <DataLiquidacao>" + p.getDataPagamento() + "</DataLiquidacao>\n" +
+                "  <MeioPagamento>" + (p.getMeioPagamento() != null ? p.getMeioPagamento() : "PIX") + "</MeioPagamento>\n" +
+                "  <StatusSplit>" + p.getStatusSplit().name() + "</StatusSplit>\n" +
+                "  <Paciente>\n" +
+                "    <Nome>" + p.getAgendamento().getPaciente().getNome() + "</Nome>\n" +
+                "    <CPF>" + p.getAgendamento().getPaciente().getCpf() + "</CPF>\n" +
+                "  </Paciente>\n" +
+                "  <PsicologoTitular>\n" +
+                "    <Nome>" + p.getAgendamento().getPsicologo().getNome() + "</Nome>\n" +
+                "    <CRP>" + p.getAgendamento().getPsicologo().getCrp() + "</CRP>\n" +
+                "  </PsicologoTitular>\n" +
+                "  <PartilhaFinanceira>\n" +
+                "    <ValorBrutoSessao>" + p.getValorTotal() + "</ValorBrutoSessao>\n" +
+                "    <RetencaoClinicaInfraestrutura>" + p.getTaxaClinicaInfraestrutura() + "</RetencaoClinicaInfraestrutura>\n" +
+                "    <RepasseLiquidoProfissional>" + p.getRepasseProfissional() + "</RepasseLiquidoProfissional>\n" +
+                "  </PartilhaFinanceira>\n" +
+                "</ComprovanteSplitPagamento>\n";
     }
 }

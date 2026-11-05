@@ -16,6 +16,16 @@ public record PagamentoRequestDTO(
         @NotNull(message = "A taxa_clinica_infraestrutura é obrigatória")
         BigDecimal taxaClinicaInfraestrutura,
         BigDecimal repasseProfissional,
-        StatusSplit statusSplit
+        StatusSplit statusSplit,
+        String meioPagamento
 ) {
+    public PagamentoRequestDTO(
+            UUID idAgendamento,
+            BigDecimal valorTotal,
+            BigDecimal taxaClinicaInfraestrutura,
+            BigDecimal repasseProfissional,
+            StatusSplit statusSplit
+    ) {
+        this(idAgendamento, valorTotal, taxaClinicaInfraestrutura, repasseProfissional, statusSplit, "PIX");
+    }
 }
