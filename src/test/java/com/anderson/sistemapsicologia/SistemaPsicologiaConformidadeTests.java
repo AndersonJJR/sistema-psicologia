@@ -12,6 +12,7 @@ import com.anderson.sistemapsicologia.model.common.CriptografiaAesService;
 import com.anderson.sistemapsicologia.model.common.RegraNegocioException;
 import com.anderson.sistemapsicologia.model.paciente.ExportacaoPortabilidadeService;
 import com.anderson.sistemapsicologia.model.paciente.Paciente;
+import com.anderson.sistemapsicologia.model.paciente.PacienteRepository;
 import com.anderson.sistemapsicologia.model.paciente.PacienteService;
 import com.anderson.sistemapsicologia.model.paciente.dtos.PacienteExportacaoDTO;
 import com.anderson.sistemapsicologia.model.pagamento.CalculadoraSplitPagamento;
@@ -22,6 +23,7 @@ import com.anderson.sistemapsicologia.model.prontuario.ProntuarioClinicoService;
 import com.anderson.sistemapsicologia.model.prontuario.dtos.ProntuarioClinicoRequestDTO;
 import com.anderson.sistemapsicologia.model.prontuario.dtos.ProntuarioClinicoResponseDTO;
 import com.anderson.sistemapsicologia.model.psicologo.Psicologo;
+import com.anderson.sistemapsicologia.model.psicologo.PsicologoRepository;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumental;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumentalRepository;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumentalService;
@@ -33,9 +35,13 @@ import com.anderson.sistemapsicologia.model.usuario.PerfilUsuario;
 import com.anderson.sistemapsicologia.model.usuario.Usuario;
 import com.anderson.sistemapsicologia.view.ExportacaoPacienteCsvView;
 import com.anderson.sistemapsicologia.view.ExportacaoPacientePdfAView;
+import com.anderson.sistemapsicologia.model.upload.UploadService;
+import com.anderson.sistemapsicologia.model.upload.dtos.UploadResponseDTO;
+import com.anderson.sistemapsicologia.model.usuario.UsuarioRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springframework.mock.web.MockMultipartFile;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
@@ -338,5 +344,51 @@ class SistemaPsicologiaConformidadeTests {
                         "127.0.0.1"
                 )
         );
+    }
+
+    @Test
+    @DisplayName("8. Upload de arquivos de imagem e vinculação às entidades no banco de dados")
+    void deveSalvarUploadDeImagemEVincularEntidades() {
+        PsicologoRepository psicologoRepo = Mockito.mock(PsicologoRepository.class);
+        PacienteRepository pacienteRepo = Mockito.mock(PacienteRepository.class);
+        UsuarioRepository usuarioRepo = Mockito.mock(UsuarioRepository.class);
+
+        UploadService uploadService = new UploadService(psicologoRepo, pacienteRepo, usuarioRepo);
+
+        UUID idPsicologo = UUID.randomUUID();
+        Psicologo psicologo = Psicologo.builder()
+                .idPsicologo(idPsicologo)
+                .nome("Dra. Juliana Mendes Silveira")
+                .cpf("123.456.789-00")
+                .crp("06/142980")
+                .email("dra.juliana@psicosafe.com.br")
+                .telefone("(11) 98765-4321")
+                .build();
+
+        Usuario usuario = Usuario.builder()
+                .idUsuario(UUID.randomUUID())
+                .login("dra.juliana@psicosafe.com.br")
+                .idPsicologoVinculado(idPsicologo)
+                .build();
+
+        when(psicologoRepo.findById(idPsicologo)).thenReturn(Optional.of(psicologo));
+        when(psicologoRepo.save(any(Psicologo.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(usuarioRepo.findByIdPsicologoVinculado(idPsicologo)).thenReturn(Optional.of(usuario));
+        when(usuarioRepo.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        MockMultipartFile arquivo = new MockMultipartFile(
+                "file",
+                "perfil.png",
+                "image/png",
+                "conteudo-de-teste-imagem".getBytes(StandardCharsets.UTF_8)
+        );
+
+        UploadResponseDTO resposta = uploadService.salvarAvatarPsicologo(idPsicologo, arquivo);
+
+        assertNotNull(resposta);
+        assertNotNull(resposta.url());
+        assertTrue(resposta.url().startsWith("/api/v1/uploads/psicologos/"));
+        assertEquals(resposta.url(), psicologo.getAvatarUrl());
+        assertEquals(resposta.url(), usuario.getAvatarUrl());
     }
 }

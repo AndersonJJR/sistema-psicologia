@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -54,6 +55,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico").permitAll()
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/uploads/**", "/uploads/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/uploads/**").hasAnyRole("RECEPCAO", "PSICOLOGO", "ADMIN")
                         // Bloqueio estrito do perfil RECEPCAO a prontuários e registros documentais (CFP 001/2009)
                         .requestMatchers("/api/v1/registros-documentais/**").hasRole("PSICOLOGO")
                         .requestMatchers("/api/v1/prontuarios/**").hasAnyRole("PSICOLOGO", "ADMIN")

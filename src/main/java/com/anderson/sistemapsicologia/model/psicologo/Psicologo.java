@@ -56,4 +56,7 @@ public class Psicologo extends EntidadeAuditavel {
 
     @Column(name = "abordagem_clinica", length = 60)
     private String abordagemClinica;
+
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
 }

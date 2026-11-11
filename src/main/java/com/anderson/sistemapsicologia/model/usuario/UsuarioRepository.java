@@ -11,5 +11,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
 
     Optional<Usuario> findByLoginAndAtivoTrue(String login);
 
+    Optional<Usuario> findByIdPsicologoVinculado(UUID idPsicologoVinculado);
+
     boolean existsByLogin(String login);
 }

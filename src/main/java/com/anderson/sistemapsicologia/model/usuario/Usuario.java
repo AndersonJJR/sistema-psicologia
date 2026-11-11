@@ -49,6 +49,9 @@ public class Usuario extends EntidadeAuditavel implements UserDetails {
     @Column(name = "id_psicologo_vinculado")
     private UUID idPsicologoVinculado;
 
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + perfil.name()));

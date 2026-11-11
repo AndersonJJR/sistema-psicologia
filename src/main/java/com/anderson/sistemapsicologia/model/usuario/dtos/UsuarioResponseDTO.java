@@ -10,6 +10,7 @@ public record UsuarioResponseDTO(
         String login,
         PerfilUsuario perfil,
         UUID idPsicologoVinculado,
+        String avatarUrl,
         boolean ativo
 ) {
     public static UsuarioResponseDTO fromEntity(Usuario usuario) {
@@ -18,6 +19,7 @@ public record UsuarioResponseDTO(
                 usuario.getLogin(),
                 usuario.getPerfil(),
                 usuario.getIdPsicologoVinculado(),
+                usuario.getAvatarUrl(),
                 usuario.isAtivo()
         );
     }

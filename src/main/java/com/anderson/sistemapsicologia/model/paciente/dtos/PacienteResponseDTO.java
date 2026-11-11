@@ -16,6 +16,7 @@ public record PacienteResponseDTO(
         String contatoEmergenciaNome,
         String contatoEmergenciaTelefone,
         String enderecoLocalSessao,
+        String avatarUrl,
         boolean ativo,
         Instant deletedAt
 ) {
@@ -30,6 +31,7 @@ public record PacienteResponseDTO(
                 entity.getContatoEmergenciaNome(),
                 entity.getContatoEmergenciaTelefone(),
                 entity.getEnderecoLocalSessao(),
+                entity.getAvatarUrl(),
                 entity.isAtivo(),
                 entity.getDeletedAt()
         );

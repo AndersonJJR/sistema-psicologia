@@ -64,4 +64,7 @@ public class Paciente extends EntidadeAuditavel {
 
     @Column(name = "endereco_local_sessao", nullable = false, length = 255)
     private String enderecoLocalSessao;
+
+    @Column(name = "avatar_url", length = 500)
+    private String avatarUrl;
 }
