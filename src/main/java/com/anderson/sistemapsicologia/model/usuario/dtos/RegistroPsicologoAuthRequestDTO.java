@@ -16,7 +16,6 @@ public record RegistroPsicologoAuthRequestDTO(
         @Size(min = 8, message = "A senha deve ter no mínimo 8 caracteres")
         String senha,
         String cpf,
-        String telefone,
-        String numeroEpsi
+        String telefone
 ) {
 }

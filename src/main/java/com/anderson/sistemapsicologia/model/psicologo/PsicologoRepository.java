@@ -17,6 +17,4 @@ public interface PsicologoRepository extends JpaRepository<Psicologo, UUID> {
     boolean existsByCpf(String cpf);
 
     boolean existsByCrp(String crp);
-
-    boolean existsByNumeroEpsi(String numeroEpsi);
 }

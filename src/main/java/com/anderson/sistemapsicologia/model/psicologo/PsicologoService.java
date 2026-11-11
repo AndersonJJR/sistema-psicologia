@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,19 +30,14 @@ public class PsicologoService {
         if (psicologoRepository.existsByCrp(dto.crp())) {
             throw new RegraNegocioException("Já existe psicólogo cadastrado com o CRP informado.");
         }
-        if (psicologoRepository.existsByNumeroEpsi(dto.numeroEpsi())) {
-            throw new RegraNegocioException("Já existe psicólogo cadastrado com o número e-Psi informado.");
-        }
 
         Psicologo psicologo = Psicologo.builder()
                 .nome(dto.nome())
                 .cpf(dto.cpf())
                 .crp(dto.crp())
-                .numeroEpsi(dto.numeroEpsi())
                 .email(dto.email())
                 .telefone(dto.telefone())
                 .abordagemClinica(dto.abordagemClinica() != null && !dto.abordagemClinica().isBlank() ? dto.abordagemClinica() : "tcc")
-                .ultimaRenovacaoEpsi(Instant.now())
                 .build();
 
         Psicologo salvo = psicologoRepository.save(psicologo);
@@ -66,14 +60,10 @@ public class PsicologoService {
         if (!psicologo.getCrp().equals(dto.crp()) && psicologoRepository.existsByCrp(dto.crp())) {
             throw new RegraNegocioException("Já existe outro psicólogo cadastrado com o CRP informado.");
         }
-        if (!psicologo.getNumeroEpsi().equals(dto.numeroEpsi()) && psicologoRepository.existsByNumeroEpsi(dto.numeroEpsi())) {
-            throw new RegraNegocioException("Já existe outro psicólogo cadastrado com o número e-Psi informado.");
-        }
 
         psicologo.setNome(dto.nome());
         psicologo.setCpf(dto.cpf());
         psicologo.setCrp(dto.crp());
-        psicologo.setNumeroEpsi(dto.numeroEpsi());
         psicologo.setEmail(dto.email());
         psicologo.setTelefone(dto.telefone());
         if (dto.abordagemClinica() != null && !dto.abordagemClinica().isBlank()) {
@@ -86,21 +76,6 @@ public class PsicologoService {
                 enderecoIp,
                 AcaoAuditoria.ALTERACAO,
                 "PSICOLOGO:" + id
-        );
-        return PsicologoResponseDTO.fromEntity(salvo);
-    }
-
-    @Transactional
-    public PsicologoResponseDTO renovarCertificadoEpsi(UUID id, String enderecoIp) {
-        Psicologo psicologo = buscarEntidadeAtiva(id);
-        psicologo.setUltimaRenovacaoEpsi(Instant.now());
-        Psicologo salvo = psicologoRepository.save(psicologo);
-
-        auditoriaService.registrarAcao(
-                autenticacaoService.obterLoginOperadorAtual(),
-                enderecoIp,
-                AcaoAuditoria.ALTERACAO,
-                "PSICOLOGO:RENOVACAO_EPSI:" + id
         );
         return PsicologoResponseDTO.fromEntity(salvo);
     }

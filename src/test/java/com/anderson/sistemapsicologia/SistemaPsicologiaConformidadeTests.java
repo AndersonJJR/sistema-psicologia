@@ -93,7 +93,7 @@ class SistemaPsicologiaConformidadeTests {
         UUID idRegistro = UUID.randomUUID();
         UUID idOutroPsicologo = UUID.randomUUID();
 
-        Psicologo psicologoTitular = Psicologo.builder().idPsicologo(idPsicologoTitular).nome("Dra. Ana").numeroEpsi("EPSI-001").build();
+        Psicologo psicologoTitular = Psicologo.builder().idPsicologo(idPsicologoTitular).nome("Dra. Ana").build();
         Paciente paciente = Paciente.builder().idPaciente(idPaciente).nome("Carlos").build();
         Agendamento agendamento = Agendamento.builder()
                 .idAgendamento(idAgendamento)
@@ -245,7 +245,6 @@ class SistemaPsicologiaConformidadeTests {
                 .idPsicologo(idPsicologo)
                 .nome("Dr. Roberto")
                 .crp("06/12345")
-                .numeroEpsi("EPSI-2026-99")
                 .build();
 
         Agendamento agendamento = Agendamento.builder()

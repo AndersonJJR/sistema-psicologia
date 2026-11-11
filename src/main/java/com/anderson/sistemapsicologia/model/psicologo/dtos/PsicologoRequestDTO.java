@@ -10,8 +10,6 @@ public record PsicologoRequestDTO(
         String cpf,
         @NotBlank(message = "O CRP do psicólogo é obrigatório")
         String crp,
-        @NotBlank(message = "O número de cadastro e-Psi é obrigatório para telessaúde")
-        String numeroEpsi,
         @NotBlank(message = "O e-mail é obrigatório")
         @Email(message = "E-mail inválido")
         String email,

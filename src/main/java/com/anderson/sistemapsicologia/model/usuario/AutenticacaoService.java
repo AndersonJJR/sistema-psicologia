@@ -57,14 +57,6 @@ public class AutenticacaoService {
             throw new RegraNegocioException("Já existe psicólogo cadastrado com o CPF informado.");
         }
 
-        String numeroEpsiNormalizado = dto.numeroEpsi() != null && !dto.numeroEpsi().isBlank()
-                ? dto.numeroEpsi().trim()
-                : "EPSI-SP-2026-" + digitosCrp;
-
-        if (psicologoRepository.existsByNumeroEpsi(numeroEpsiNormalizado)) {
-            throw new RegraNegocioException("Já existe psicólogo cadastrado com o número e-Psi informado.");
-        }
-
         String telefoneNormalizado = dto.telefone() != null && !dto.telefone().isBlank()
                 ? dto.telefone().trim()
                 : "(11) 98765-4321";
@@ -73,7 +65,6 @@ public class AutenticacaoService {
                 .nome(dto.nome().trim())
                 .cpf(cpfNormalizado)
                 .crp(crpNormalizado)
-                .numeroEpsi(numeroEpsiNormalizado)
                 .email(emailLogin)
                 .telefone(telefoneNormalizado)
                 .build();
@@ -92,7 +83,7 @@ public class AutenticacaoService {
                 emailLogin,
                 enderecoIp,
                 AcaoAuditoria.INSERCAO,
-                "CREDENCIAMENTO_EPSI:" + psicologoSalvo.getIdPsicologo()
+                "REGISTRO_PSICOLOGO:" + psicologoSalvo.getIdPsicologo()
         );
 
         String token = jwtTokenService.gerarToken(usuarioSalvo);

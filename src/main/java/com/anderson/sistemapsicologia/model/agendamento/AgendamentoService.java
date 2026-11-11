@@ -47,11 +47,6 @@ public class AgendamentoService {
                 : paciente.getEnderecoLocalSessao();
 
         if (dto.modalidade() == ModalidadeAtendimento.TELECONSULTA) {
-            if (psicologo.getNumeroEpsi() == null || psicologo.getNumeroEpsi().isBlank()) {
-                throw new RegraNegocioException(
-                        "Atendimento online (Teleconsulta) exige psicólogo com cadastro ativo no e-Psi."
-                );
-            }
             if (localSessao == null || localSessao.isBlank()) {
                 throw new RegraNegocioException(
                         "Teleconsulta exige o endereço físico onde o paciente se encontra para gestão de crises."

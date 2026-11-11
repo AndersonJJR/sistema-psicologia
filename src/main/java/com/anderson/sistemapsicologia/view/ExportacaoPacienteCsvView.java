@@ -37,8 +37,7 @@ public class ExportacaoPacienteCsvView {
             sb.append("AGENDAMENTO,")
                     .append(ag.idAgendamento()).append(",")
                     .append(ag.dataHoraSessao()).append(",")
-                    .append(escaparCsv("Modalidade: " + ag.modalidade() + " | Psicologo: " + ag.nomePsicologo()
-                            + " (e-Psi: " + ag.numeroEpsiPsicologo() + ")")).append(",")
+                    .append(escaparCsv("Modalidade: " + ag.modalidade() + " | Psicologo: " + ag.nomePsicologo())).append(",")
                     .append(escaparCsv("Local Sessao: " + ag.enderecoLocalSessao())).append(",")
                     .append(ag.status())
                     .append("\n");

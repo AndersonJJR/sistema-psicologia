@@ -62,7 +62,6 @@ public class ClinicalDataInitializer implements CommandLineRunner {
                         .nome("Dra. Juliana Mendes Silveira")
                         .cpf("123.456.789-00")
                         .crp("06/142980 - SP")
-                        .numeroEpsi("EPSI-SP-2023-88412")
                         .email("dra.juliana@psicosafe.com.br")
                         .telefone("(11) 98765-4321")
                         .build()));

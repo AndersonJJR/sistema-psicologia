@@ -14,11 +14,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Entidade PSICOLOGOS com constraints UNIQUE em cpf, crp e numero_epsi (Telessaúde CFP).
+ * Entidade PSICOLOGOS com constraints UNIQUE em cpf e crp.
  */
 @Getter
 @Setter
@@ -30,8 +29,7 @@ import java.util.UUID;
         name = "PSICOLOGOS",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_psicologos_cpf", columnNames = "cpf"),
-                @UniqueConstraint(name = "uk_psicologos_crp", columnNames = "crp"),
-                @UniqueConstraint(name = "uk_psicologos_numero_epsi", columnNames = "numero_epsi")
+                @UniqueConstraint(name = "uk_psicologos_crp", columnNames = "crp")
         }
 )
 public class Psicologo extends EntidadeAuditavel {
@@ -50,9 +48,6 @@ public class Psicologo extends EntidadeAuditavel {
     @Column(name = "crp", nullable = false, unique = true, length = 25)
     private String crp;
 
-    @Column(name = "numero_epsi", nullable = false, unique = true, length = 40)
-    private String numeroEpsi;
-
     @Column(name = "email", nullable = false, length = 150)
     private String email;
 
@@ -61,7 +56,4 @@ public class Psicologo extends EntidadeAuditavel {
 
     @Column(name = "abordagem_clinica", length = 60)
     private String abordagemClinica;
-
-    @Column(name = "ultima_renovacao_epsi")
-    private Instant ultimaRenovacaoEpsi;
 }
