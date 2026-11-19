@@ -28,6 +28,7 @@ src/main/java/com/anderson/sistemapsicologia/
 │   ├── AgendamentoController.java
 │   ├── AuditoriaController.java
 │   ├── AutenticacaoController.java
+│   ├── DashboardController.java
 │   ├── ExportacaoPacienteController.java
 │   ├── GlobalExceptionHandler.java
 │   ├── PacienteController.java
@@ -61,6 +62,10 @@ src/main/java/com/anderson/sistemapsicologia/
 │   │   └── dtos/
 │   │       ├── LogAuditoriaCreateDTO.java
 │   │       └── LogAuditoriaResponseDTO.java
+│   ├── dashboard/
+│   │   ├── DashboardService.java
+│   │   └── dtos/
+│   │       └── DashboardResumoResponseDTO.java
 │   ├── paciente/
 │   │   ├── ExportacaoPortabilidadeService.java
 │   │   ├── Paciente.java
@@ -150,7 +155,8 @@ Todas as entidades do ecossistema utilizam **UUID** como chave primária (`@Gene
 2. **`PACIENTES` (`Paciente`) e `AGENDAMENTOS` (`Agendamento`)**:
    - `id_paciente` (PK: `UUID`)
    - `id_agendamento` (PK: `UUID`), `id_psicologo` (FK: `UUID`), `id_paciente` (FK: `UUID`)
-   - Campos `contato_emergencia_nome`, `contato_emergencia_telefone` e `endereco_local_sessao` obrigatórios para suporte imediato em casos de descompensação psíquica grave durante teleconsultas.
+   - Campos `contato_emergencia_nome`, `contato_emergencia_telefone` e `endereco_local_sessao` obrigatórios para suporte imediato em casos de descompensação psíquica grave durante teleconsultas (com fallback seguro no cadastro rápido de paciente).
+   - Novos atributos operacionais em `AGENDAMENTOS`: `duracao_minutos` (`INTEGER`, default `50`), `tipo_sessao` (`VARCHAR(120)`), `enviar_lembrete_24h` (`BOOLEAN`, default `true`), além de suporte a recorrência semanal (`repetirSemanalmente`) e geração automática de split financeiro (`valorHonorario`, 30% clínica / 70% profissional) na criação do agendamento.
 
 ### 3.3. Engenharia Financeira: Split de Pagamentos
 - **`PAGAMENTOS` (`Pagamento`)**:
@@ -188,7 +194,8 @@ Todas as entidades do ecossistema utilizam **UUID** como chave primária (`@Gene
 | `POST` | `/api/v1/auth/usuarios` | Público / Admin | Cadastra usuário com perfil (`ADMIN`, `PSICOLOGO`, `RECEPCAO`) e `idPsicologoVinculado` (UUID) |
 | `GET/POST/DELETE` | `/api/v1/psicologos` | `RECEPCAO`, `PSICOLOGO`, `ADMIN` | Gestão de psicólogos com validação `UNIQUE` em CPF, CRP e e-Psi |
 | `GET/POST/PUT/DELETE` | `/api/v1/pacientes` | `RECEPCAO`, `PSICOLOGO`, `ADMIN` | Gestão demográfica e contatos de emergência (Soft Delete) |
-| `GET/POST/DELETE` | `/api/v1/agendamentos` | `RECEPCAO`, `PSICOLOGO`, `ADMIN` | Gestão de sessões presenciais e teleconsultas vinculando UUIDs de psicólogo e paciente |
+| `GET/POST/DELETE` | `/api/v1/agendamentos` | `RECEPCAO`, `PSICOLOGO`, `ADMIN` | Gestão de sessões presenciais e teleconsultas (suporta duração, tipo de sessão, recorrência semanal e split automático) |
+| `GET` | `/api/v1/dashboard/resumo` | `RECEPCAO`, `PSICOLOGO`, `ADMIN` | Consolidação do resumo clínico e financeiro da página inicial (repasse mensal, consultas de hoje, assiduidade, pendências e atendimentos recentes) |
 | `GET/POST/DELETE` | `/api/v1/prontuarios` | `PSICOLOGO`, `ADMIN` (**Bloqueado para `RECEPCAO`**) | Prontuários clínicos públicos ao paciente (CFP 001/2009) |
 | `GET/POST/DELETE` | `/api/v1/registros-documentais` | Exclusivo `PSICOLOGO` Titular (**Bloqueado para `RECEPCAO` e outros psicólogos**) | Registros privativos criptografados com AES-256-GCM |
 | `GET/POST/PATCH` | `/api/v1/pagamentos` | `RECEPCAO`, `PSICOLOGO`, `ADMIN` | Registro e liquidação de Split de Pagamentos |
