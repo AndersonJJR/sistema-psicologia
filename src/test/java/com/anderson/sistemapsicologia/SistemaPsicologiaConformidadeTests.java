@@ -5,17 +5,22 @@ import com.anderson.sistemapsicologia.model.agendamento.AgendamentoRepository;
 import com.anderson.sistemapsicologia.model.agendamento.AgendamentoService;
 import com.anderson.sistemapsicologia.model.agendamento.ModalidadeAtendimento;
 import com.anderson.sistemapsicologia.model.agendamento.StatusAgendamento;
+import com.anderson.sistemapsicologia.model.agendamento.dtos.AgendamentoRequestDTO;
+import com.anderson.sistemapsicologia.model.agendamento.dtos.AgendamentoResponseDTO;
 import com.anderson.sistemapsicologia.model.auditoria.AuditoriaService;
 import com.anderson.sistemapsicologia.model.common.AcessoNegadoClinicoException;
 import com.anderson.sistemapsicologia.model.common.AesAttributeConverter;
 import com.anderson.sistemapsicologia.model.common.CriptografiaAesService;
 import com.anderson.sistemapsicologia.model.common.RegraNegocioException;
+import com.anderson.sistemapsicologia.model.dashboard.DashboardService;
+import com.anderson.sistemapsicologia.model.dashboard.dtos.DashboardResumoResponseDTO;
 import com.anderson.sistemapsicologia.model.paciente.ExportacaoPortabilidadeService;
 import com.anderson.sistemapsicologia.model.paciente.Paciente;
 import com.anderson.sistemapsicologia.model.paciente.PacienteRepository;
 import com.anderson.sistemapsicologia.model.paciente.PacienteService;
 import com.anderson.sistemapsicologia.model.paciente.dtos.PacienteExportacaoDTO;
 import com.anderson.sistemapsicologia.model.pagamento.CalculadoraSplitPagamento;
+import com.anderson.sistemapsicologia.model.pagamento.Pagamento;
 import com.anderson.sistemapsicologia.model.pagamento.PagamentoRepository;
 import com.anderson.sistemapsicologia.model.prontuario.ProntuarioClinico;
 import com.anderson.sistemapsicologia.model.prontuario.ProntuarioClinicoRepository;
@@ -24,6 +29,7 @@ import com.anderson.sistemapsicologia.model.prontuario.dtos.ProntuarioClinicoReq
 import com.anderson.sistemapsicologia.model.prontuario.dtos.ProntuarioClinicoResponseDTO;
 import com.anderson.sistemapsicologia.model.psicologo.Psicologo;
 import com.anderson.sistemapsicologia.model.psicologo.PsicologoRepository;
+import com.anderson.sistemapsicologia.model.psicologo.PsicologoService;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumental;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumentalRepository;
 import com.anderson.sistemapsicologia.model.registrodocumental.RegistroDocumentalService;
@@ -390,5 +396,171 @@ class SistemaPsicologiaConformidadeTests {
         assertTrue(resposta.url().startsWith("/api/v1/uploads/psicologos/"));
         assertEquals(resposta.url(), psicologo.getAvatarUrl());
         assertEquals(resposta.url(), usuario.getAvatarUrl());
+    }
+
+    @Test
+    @DisplayName("9. Agendamento com duração, recorrência semanal e geração automática de split 30%/70%")
+    void deveCriarAgendamentoComRecorrenciaESplitAutomatico() {
+        AgendamentoRepository agendamentoRepo = Mockito.mock(AgendamentoRepository.class);
+        PsicologoService psicologoService = Mockito.mock(PsicologoService.class);
+        PacienteService pacienteService = Mockito.mock(PacienteService.class);
+        PagamentoRepository pagamentoRepo = Mockito.mock(PagamentoRepository.class);
+        CalculadoraSplitPagamento calculadoraSplit = new CalculadoraSplitPagamento();
+        AuditoriaService auditoriaService = Mockito.mock(AuditoriaService.class);
+        AutenticacaoService autenticacaoService = Mockito.mock(AutenticacaoService.class);
+
+        AgendamentoService service = new AgendamentoService(
+                agendamentoRepo,
+                psicologoService,
+                pacienteService,
+                pagamentoRepo,
+                calculadoraSplit,
+                auditoriaService,
+                autenticacaoService
+        );
+
+        UUID idPsicologo = UUID.randomUUID();
+        UUID idPaciente = UUID.randomUUID();
+        Psicologo psicologo = Psicologo.builder().idPsicologo(idPsicologo).nome("Dra. Juliana").build();
+        Paciente paciente = Paciente.builder()
+                .idPaciente(idPaciente)
+                .nome("Mariana Duarte Farias")
+                .enderecoLocalSessao("Rua das Flores, 100")
+                .build();
+
+        when(psicologoService.buscarEntidadeAtiva(idPsicologo)).thenReturn(psicologo);
+        when(pacienteService.buscarEntidadeAtiva(idPaciente)).thenReturn(paciente);
+        when(agendamentoRepo.existsByPsicologoIdPsicologoAndDataHoraSessaoAndAtivoTrue(any(), any())).thenReturn(false);
+        when(agendamentoRepo.save(any(Agendamento.class))).thenAnswer(inv -> {
+            Agendamento a = inv.getArgument(0);
+            a.setIdAgendamento(UUID.randomUUID());
+            return a;
+        });
+        when(pagamentoRepo.save(any(Pagamento.class))).thenAnswer(inv -> {
+            Pagamento p = inv.getArgument(0);
+            p.setIdPagamento(UUID.randomUUID());
+            return p;
+        });
+        when(autenticacaoService.obterLoginOperadorAtual()).thenReturn("dra.juliana@psicosafe.com.br");
+
+        AgendamentoRequestDTO dto = new AgendamentoRequestDTO(
+                idPsicologo,
+                idPaciente,
+                LocalDateTime.of(2026, 11, 20, 16, 0),
+                ModalidadeAtendimento.TELECONSULTA,
+                StatusAgendamento.AGENDADO,
+                null,
+                50,
+                "Sessão Individual Ordinária",
+                true,
+                3,
+                new BigDecimal("250.00"),
+                true
+        );
+
+        AgendamentoResponseDTO resposta = service.criar(dto, "127.0.0.1");
+
+        assertNotNull(resposta.idAgendamento());
+        assertEquals(50, resposta.duracaoMinutos());
+        assertEquals("Sessão Individual Ordinária", resposta.tipoSessao());
+        assertTrue(resposta.enviarLembrete24h());
+        Mockito.verify(agendamentoRepo, Mockito.times(3)).save(any(Agendamento.class));
+        Mockito.verify(pagamentoRepo, Mockito.times(3)).save(any(Pagamento.class));
+    }
+
+    @Test
+    @DisplayName("10. Dashboard Clínico e Financeiro: consolida métricas do dia, assiduidade, pendências e repasse mensal")
+    void deveConsolidarResumoDoDashboardClinicoEFinanceiro() {
+        AgendamentoRepository agendamentoRepo = Mockito.mock(AgendamentoRepository.class);
+        PagamentoRepository pagamentoRepo = Mockito.mock(PagamentoRepository.class);
+        ProntuarioClinicoRepository prontuarioRepo = Mockito.mock(ProntuarioClinicoRepository.class);
+        PacienteRepository pacienteRepo = Mockito.mock(PacienteRepository.class);
+        AutenticacaoService autenticacaoService = Mockito.mock(AutenticacaoService.class);
+
+        DashboardService dashboardService = new DashboardService(
+                agendamentoRepo,
+                pagamentoRepo,
+                prontuarioRepo,
+                pacienteRepo,
+                autenticacaoService
+        );
+
+        UUID idPsicologo = UUID.randomUUID();
+        Psicologo psicologo = Psicologo.builder()
+                .idPsicologo(idPsicologo)
+                .nome("Dra. Juliana Mendes")
+                .abordagemClinica("tcc")
+                .build();
+        Paciente paciente = Paciente.builder()
+                .idPaciente(UUID.randomUUID())
+                .nome("Lucas Gabriel")
+                .dataNascimento(LocalDate.of(1994, 5, 10))
+                .enderecoLocalSessao("Rua A, 10")
+                .build();
+
+        Agendamento agendamentoHoje = Agendamento.builder()
+                .idAgendamento(UUID.randomUUID())
+                .psicologo(psicologo)
+                .paciente(paciente)
+                .dataHoraSessao(LocalDateTime.now().plusMinutes(20))
+                .modalidade(ModalidadeAtendimento.TELECONSULTA)
+                .status(StatusAgendamento.AGENDADO)
+                .duracaoMinutos(50)
+                .tipoSessao("Sessão Individual Ordinária")
+                .enderecoLocalSessao("Rua A, 10")
+                .build();
+
+        Agendamento agendamentoRealizado = Agendamento.builder()
+                .idAgendamento(UUID.randomUUID())
+                .psicologo(psicologo)
+                .paciente(paciente)
+                .dataHoraSessao(LocalDateTime.now().minusHours(2))
+                .modalidade(ModalidadeAtendimento.PRESENCIAL)
+                .status(StatusAgendamento.REALIZADO)
+                .duracaoMinutos(50)
+                .tipoSessao("Sessão Individual Ordinária")
+                .enderecoLocalSessao("Sala 1")
+                .build();
+
+        Pagamento pagamento = Pagamento.builder()
+                .idPagamento(UUID.randomUUID())
+                .agendamento(agendamentoRealizado)
+                .valorTotal(new BigDecimal("250.00"))
+                .taxaClinicaInfraestrutura(new BigDecimal("75.00"))
+                .repasseProfissional(new BigDecimal("175.00"))
+                .meioPagamento("PIX")
+                .dataPagamento(Instant.now())
+                .build();
+
+        ProntuarioClinico prontuarioRascunho = ProntuarioClinico.builder()
+                .idProntuario(UUID.randomUUID())
+                .agendamento(agendamentoRealizado)
+                .procedimentosTecnicos("TCC")
+                .evolucaoObservavel("Em andamento")
+                .dataRegistro(Instant.now())
+                .assinado(false)
+                .build();
+
+        when(autenticacaoService.obterIdPsicologoAutenticado()).thenReturn(Optional.of(idPsicologo));
+        when(agendamentoRepo.findAllByAtivoTrueOrderByDataHoraSessaoDesc())
+                .thenReturn(List.of(agendamentoHoje, agendamentoRealizado));
+        when(pagamentoRepo.findAllByAtivoTrueOrderByDataPagamentoDesc()).thenReturn(List.of(pagamento));
+        when(prontuarioRepo.findAllByAtivoTrueOrderByDataRegistroDesc()).thenReturn(List.of(prontuarioRascunho));
+        when(pacienteRepo.findAllByAtivoTrue()).thenReturn(List.of(paciente));
+
+        DashboardResumoResponseDTO resumo = dashboardService.obterResumo();
+
+        assertEquals(new BigDecimal("175.00"), resumo.repasseLiquidoMes());
+        assertEquals(new BigDecimal("250.00"), resumo.valorBrutoMes());
+        assertEquals(2L, resumo.totalConsultasHoje());
+        assertEquals(1L, resumo.totalTelessaudeHoje());
+        assertEquals(1L, resumo.totalPresenciaisHoje());
+        assertNotNull(resumo.proximaConsulta());
+        assertEquals(100.0, resumo.taxaAssiduidade());
+        assertEquals(1L, resumo.pacientesAtivos());
+        assertEquals(1L, resumo.prontuariosEmRascunho());
+        assertEquals(2, resumo.agendamentosHoje().size());
+        assertEquals(1, resumo.atendimentosRecentes().size());
+        assertEquals("RASCUNHO", resumo.atendimentosRecentes().get(0).prontuarioStatus());
     }
 }

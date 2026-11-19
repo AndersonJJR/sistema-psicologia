@@ -65,6 +65,7 @@ public class SecurityConfiguration {
                         // Endpoints demográficos, agenda e financeiro acessíveis à RECEPCAO, PSICOLOGO e ADMIN
                         .requestMatchers("/api/v1/pacientes/**").hasAnyRole("RECEPCAO", "PSICOLOGO", "ADMIN")
                         .requestMatchers("/api/v1/agendamentos/**").hasAnyRole("RECEPCAO", "PSICOLOGO", "ADMIN")
+                        .requestMatchers("/api/v1/dashboard/**").hasAnyRole("RECEPCAO", "PSICOLOGO", "ADMIN")
                         .requestMatchers("/api/v1/psicologos/**").hasAnyRole("RECEPCAO", "PSICOLOGO", "ADMIN")
                         .requestMatchers("/api/v1/pagamentos/**").hasAnyRole("RECEPCAO", "PSICOLOGO", "ADMIN")
                         .anyRequest().authenticated()
@@ -82,7 +83,7 @@ public class SecurityConfiguration {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Forwarded-For"));
         configuration.setExposedHeaders(List.of("Content-Disposition"));
