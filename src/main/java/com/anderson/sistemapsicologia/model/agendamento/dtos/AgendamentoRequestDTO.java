@@ -4,6 +4,7 @@ import com.anderson.sistemapsicologia.model.agendamento.ModalidadeAtendimento;
 import com.anderson.sistemapsicologia.model.agendamento.StatusAgendamento;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,6 +18,22 @@ public record AgendamentoRequestDTO(
         @NotNull(message = "A modalidade de atendimento é obrigatória")
         ModalidadeAtendimento modalidade,
         StatusAgendamento status,
-        String enderecoLocalSessao
+        String enderecoLocalSessao,
+        Integer duracaoMinutos,
+        String tipoSessao,
+        Boolean repetirSemanalmente,
+        Integer quantidadeSemanas,
+        BigDecimal valorHonorario,
+        Boolean enviarLembrete24h
 ) {
+    public AgendamentoRequestDTO(
+            UUID idPsicologo,
+            UUID idPaciente,
+            LocalDateTime dataHoraSessao,
+            ModalidadeAtendimento modalidade,
+            StatusAgendamento status,
+            String enderecoLocalSessao
+    ) {
+        this(idPsicologo, idPaciente, dataHoraSessao, modalidade, status, enderecoLocalSessao, null, null, null, null, null, null);
+    }
 }

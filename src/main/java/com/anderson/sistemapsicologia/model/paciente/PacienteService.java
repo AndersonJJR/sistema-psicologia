@@ -28,6 +28,10 @@ public class PacienteService {
             throw new RegraNegocioException("Já existe paciente cadastrado com o CPF informado.");
         }
 
+        String enderecoSessao = dto.enderecoLocalSessao() != null && !dto.enderecoLocalSessao().isBlank()
+                ? dto.enderecoLocalSessao().trim()
+                : "Endereço residencial a confirmar";
+
         Paciente paciente = Paciente.builder()
                 .nome(dto.nome())
                 .cpf(dto.cpf())
@@ -36,7 +40,7 @@ public class PacienteService {
                 .telefone(dto.telefone())
                 .contatoEmergenciaNome(dto.contatoEmergenciaNome())
                 .contatoEmergenciaTelefone(dto.contatoEmergenciaTelefone())
-                .enderecoLocalSessao(dto.enderecoLocalSessao())
+                .enderecoLocalSessao(enderecoSessao)
                 .build();
 
         Paciente salvo = pacienteRepository.save(paciente);

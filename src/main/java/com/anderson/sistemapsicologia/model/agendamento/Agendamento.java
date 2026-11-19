@@ -62,4 +62,16 @@ public class Agendamento extends EntidadeAuditavel {
 
     @Column(name = "endereco_local_sessao", nullable = false, length = 255)
     private String enderecoLocalSessao;
+
+    @Builder.Default
+    @Column(name = "duracao_minutos")
+    private Integer duracaoMinutos = 50;
+
+    @Builder.Default
+    @Column(name = "tipo_sessao", length = 120)
+    private String tipoSessao = "Sessão Individual Ordinária";
+
+    @Builder.Default
+    @Column(name = "enviar_lembrete_24h")
+    private Boolean enviarLembrete24h = Boolean.TRUE;
 }

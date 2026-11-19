@@ -22,7 +22,6 @@ public record PacienteRequestDTO(
         String contatoEmergenciaNome,
         @NotBlank(message = "O telefone do contato de emergência é obrigatório")
         String contatoEmergenciaTelefone,
-        @NotBlank(message = "O endereço do local da sessão é obrigatório para suporte a crises em telessaúde")
         String enderecoLocalSessao
 ) {
 }

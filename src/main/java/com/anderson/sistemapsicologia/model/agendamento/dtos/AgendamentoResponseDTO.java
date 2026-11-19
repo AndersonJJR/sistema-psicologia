@@ -20,6 +20,9 @@ public record AgendamentoResponseDTO(
         ModalidadeAtendimento modalidade,
         StatusAgendamento status,
         String enderecoLocalSessao,
+        Integer duracaoMinutos,
+        String tipoSessao,
+        boolean enviarLembrete24h,
         boolean ativo,
         Instant deletedAt
 ) {
@@ -36,6 +39,9 @@ public record AgendamentoResponseDTO(
                 entity.getModalidade(),
                 entity.getStatus(),
                 entity.getEnderecoLocalSessao(),
+                entity.getDuracaoMinutos() != null ? entity.getDuracaoMinutos() : 50,
+                entity.getTipoSessao() != null ? entity.getTipoSessao() : "Sessão Individual Ordinária",
+                entity.getEnviarLembrete24h() == null || entity.getEnviarLembrete24h(),
                 entity.isAtivo(),
                 entity.getDeletedAt()
         );
