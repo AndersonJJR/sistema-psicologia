@@ -1,17 +1,17 @@
-version: "3.9"
-
 services:
   mysql-db:
     image: mysql:8.4
     container_name: psicologia-mysql
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: psicologia
+      MYSQL_DATABASE: sistema_psicologia
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
     ports:
       - "3306:3306"
     volumes:
       - mysql_psicologia_data:/var/lib/mysql
+    networks:
+      - psicologia-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -28,11 +28,35 @@ services:
       mysql-db:
         condition: service_healthy
     environment:
-      DATASOURCE_URL: jdbc:mysql://mysql-db:3306/psicologia?createDatabaseIfNotExist=true&serverTimezone=UTC
+      DATASOURCE_URL: jdbc:mysql://mysql-db:3306/sistema_psicologia?createDatabaseIfNotExist=true&serverTimezone=UTC
       DB_USERNAME: ${DB_USERNAME:-root}
       DB_PASSWORD: ${DB_PASSWORD:-root}
+      APP_AES_KEY: ${APP_AES_KEY:-9f8c7b6a5e4d3c2b1a0f9e8d7c6b5a43}
+      JWT_SECRET: ${JWT_SECRET:-4a7b9c2e5f8a1d3c6e9f2b5a8d4c1e7f3a6b9c2e5f8a1d3c6e9f2b5a8d4c1e7f}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-86400000}
     ports:
       - "8080:8080"
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - psicologia-network
+
+  sistema-psicologia-frontend:
+    build:
+      context: /home/anderson/IdeaProjects/sistema-psicologia-interface
+      dockerfile: Dockerfile
+    container_name: psicologia-frontend
+    restart: unless-stopped
+    depends_on:
+      - sistema-psicologia-api
+    ports:
+      - "4200:80"
+    networks:
+      - psicologia-network
 
 volumes:
   mysql_psicologia_data:
+
+networks:
+  psicologia-network:
+    driver: bridge
