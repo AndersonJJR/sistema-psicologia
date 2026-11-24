@@ -27,6 +27,10 @@ public class CriptografiaAesService {
     private static volatile SecretKeySpec activeSecretKey;
     private final SecureRandom secureRandom = new SecureRandom();
 
+    public CriptografiaAesService() {
+    }
+
+    @org.springframework.beans.factory.annotation.Autowired
     public CriptografiaAesService(
             @Value("${app.security.aes-key:MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}") String configuredKey
     ) {

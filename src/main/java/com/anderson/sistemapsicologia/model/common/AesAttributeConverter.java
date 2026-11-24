@@ -10,9 +10,7 @@ import jakarta.persistence.Converter;
 @Converter
 public class AesAttributeConverter implements AttributeConverter<String, String> {
 
-    private final CriptografiaAesService criptografiaAesService = new CriptografiaAesService(
-            "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="
-    );
+    private final CriptografiaAesService criptografiaAesService = new CriptografiaAesService();
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
@@ -24,3 +22,4 @@ public class AesAttributeConverter implements AttributeConverter<String, String>
         return criptografiaAesService.descriptografar(dbData);
     }
 }
+
